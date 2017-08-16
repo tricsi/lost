@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "target": "es6",
+        "module": "amd",
+        "sourceMap": true,
+        "watch": true,
+        "outFile": "src/script.js"
+    },
+    "include": [
+        "src/Game/*.ts",
+        "src/script.ts"
+    ]
+}

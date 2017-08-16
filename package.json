@@ -1,0 +1,19 @@
+{
+  "name": "lost",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/sat": "0.0.28",
+    "typescript": "^2.4.2"
+  },
+  "dependencies": {
+    "jsfxr": "^0.0.1",
+    "sat": "^0.6.0"
+  }
+}
