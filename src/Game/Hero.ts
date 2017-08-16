@@ -2,25 +2,22 @@ namespace Game {
 
     export class Hero implements Item {
         
-        pos: SAT.Vector;
-        width: number = 16;
-        height: number = 24;
-        speed: SAT.Vector;
-        collider: SAT.Box;
+        speed: Vec;
+        collider: Rect;
 
         constructor(x: number, y: number) {
-            this.pos = new SAT.Vector(x, y);
-            this.speed = new SAT.Vector(0, 0);
-            this.collider = new SAT.Box(this.pos, this.width, this.height);
+            this.speed = new Vec(0, 1);
+            this.collider = new Rect(new Vec(x, y), 16, 24);
         }
 
         render(ctx: CanvasRenderingContext2D): void  {
+            const rect = this.collider;
             ctx.fillStyle = '#f0f';
-            ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
+            ctx.fillRect(rect.pos.x, rect.pos.y, rect.w, rect.h);
         }
 
         update(): void {
-            this.pos.add(this.speed);
+            this.collider.pos.add(this.speed);
         }
 
     }

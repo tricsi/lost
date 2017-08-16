@@ -2,21 +2,16 @@ namespace Game {
 
     export class Platform implements Item {
 
-        pos: SAT.Vector;
-        width: number;
-        height: number;
-        collider: SAT.Box;
+        collider: Rect;
 
         constructor(x: number, y: number, width: number, height: number) {
-            this.pos = new SAT.Vector(x, y);
-            this.width = width;
-            this.height = height;
-            this.collider = new SAT.Box(this.pos, width, height);
+            this.collider = new Rect(new Vec(x, y), width, height);
         }
 
         render(ctx: CanvasRenderingContext2D): void {
+            const rect = this.collider;
             ctx.fillStyle = '#0ff';
-            ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
+            ctx.fillRect(rect.pos.x, rect.pos.y, rect.w, rect.h);
         }
 
         update(): void {

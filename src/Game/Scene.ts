@@ -25,14 +25,15 @@ namespace Game {
 
         update(): void {
             let hero = this.hero,
-                res = new SAT.Response();
-            hero.update();
-            this.platforms.forEach(platform => {
-                let collided = SAT.testPolygonPolygon(platform.collider.toPolygon(), hero.collider.toPolygon(), res);
-                if (collided) {
-                    hero.pos.add(res.overlapV);
+                res = new SAT.Response(),
+                pos = hero.collider.pos,
+                sign = hero.speed.sign();
+            pos.add(hero.speed);
+            for (let i = 0; i < this.platforms.length; i++) {
+                while (this.platforms[i].collider.test(hero.collider)) {
+                    pos.sub(sign);
                 }
-            });
+            };
         }
 
     }
