@@ -10,5 +10,8 @@ namespace Game {
             this.y = y;
         }
 
+        clone(): Vec {
+            return new Vec(this.x, this.y);
+        }
     }
 }

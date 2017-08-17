@@ -1,6 +1,6 @@
 namespace Game {
 
-    export class Platform implements Item {
+    export class Platform {
 
         box: Box;
 
