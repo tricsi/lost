@@ -2,19 +2,16 @@ namespace Game {
 
     export class Platform implements Item {
 
-        collider: Rect;
+        box: Box;
 
         constructor(x: number, y: number, width: number, height: number) {
-            this.collider = new Rect(new Vec(x, y), width, height);
+            this.box = new Box(new Vec(x, y), width, height);
         }
 
         render(ctx: CanvasRenderingContext2D): void {
-            const rect = this.collider;
+            const box = this.box;
             ctx.fillStyle = '#0ff';
-            ctx.fillRect(rect.pos.x, rect.pos.y, rect.w, rect.h);
-        }
-
-        update(): void {
+            ctx.fillRect(box.pos.x, box.pos.y, box.w, box.h);
         }
 
     }

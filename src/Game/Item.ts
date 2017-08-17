@@ -4,8 +4,6 @@ namespace Game {
 
         render(ctx: CanvasRenderingContext2D): void;
 
-        update(): void;
-
     }
 
 }

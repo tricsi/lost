@@ -7,7 +7,7 @@ namespace Game {
         platforms: Platform[];
 
         constructor() {
-            this.hero = new Hero(80, 60);
+            this.hero = new Hero(128, 72);
             this.platforms = [
                 new Platform(32, 72, 48, 8),
                 new Platform(120, 96, 32, 8),
@@ -25,15 +25,20 @@ namespace Game {
 
         update(): void {
             let hero = this.hero,
-                res = new SAT.Response(),
-                pos = hero.collider.pos,
-                sign = hero.speed.sign();
-            pos.add(hero.speed);
-            for (let i = 0; i < this.platforms.length; i++) {
-                while (this.platforms[i].collider.test(hero.collider)) {
-                    pos.sub(sign);
+                speed = hero.speed,
+                pos = hero.box.pos;
+            pos.x += speed.x;
+            this.platforms.forEach(platform => {
+                if (platform.box.test(hero.box)) {
+                    pos.x -= speed.x;
                 }
-            };
+            });
+            pos.y += speed.y;
+            this.platforms.forEach(platform => {
+                if (platform.box.test(hero.box)) {
+                    pos.y -= speed.y;
+                }
+            });
         }
 
     }

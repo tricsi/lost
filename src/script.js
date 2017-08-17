@@ -1,17 +1,35 @@
 var Game;
 (function (Game) {
+    class Box {
+        constructor(pos, w, h) {
+            this.pos = pos;
+            this.w = w;
+            this.h = h;
+        }
+        test(box) {
+            return this.pos.x < box.pos.x + box.w &&
+                this.pos.x + this.w > box.pos.x &&
+                this.pos.y < box.pos.y + box.h &&
+                this.h + this.pos.y > box.pos.y;
+        }
+        intersect(box) {
+            let Ax = this.pos.x, Ay = this.pos.y, AX = Ax + this.w, AY = Ay + this.h, Bx = box.pos.x, By = box.pos.y, BX = Bx + box.w, BY = By + box.h, Cx = Ax < Bx ? Bx : Ax, Cy = Ay < By ? By : Ay, CX = AX < BX ? AX : BX, CY = AY < BY ? AY : BY;
+            return new Box(new Game.Vec(Cx, Cy), CX - Cx, CY - Cy);
+        }
+    }
+    Game.Box = Box;
+})(Game || (Game = {}));
+var Game;
+(function (Game) {
     class Hero {
         constructor(x, y) {
             this.speed = new Game.Vec(0, 1);
-            this.collider = new Game.Rect(new Game.Vec(x, y), 16, 24);
+            this.box = new Game.Box(new Game.Vec(x, y), 16, 24);
         }
         render(ctx) {
-            const rect = this.collider;
+            const box = this.box;
             ctx.fillStyle = '#f0f';
-            ctx.fillRect(rect.pos.x, rect.pos.y, rect.w, rect.h);
-        }
-        update() {
-            this.collider.pos.add(this.speed);
+            ctx.fillRect(box.pos.x, box.pos.y, box.w, box.h);
         }
     }
     Game.Hero = Hero;
@@ -20,45 +38,21 @@ var Game;
 (function (Game) {
     class Platform {
         constructor(x, y, width, height) {
-            this.collider = new Game.Rect(new Game.Vec(x, y), width, height);
+            this.box = new Game.Box(new Game.Vec(x, y), width, height);
         }
         render(ctx) {
-            const rect = this.collider;
+            const box = this.box;
             ctx.fillStyle = '#0ff';
-            ctx.fillRect(rect.pos.x, rect.pos.y, rect.w, rect.h);
-        }
-        update() {
+            ctx.fillRect(box.pos.x, box.pos.y, box.w, box.h);
         }
     }
     Game.Platform = Platform;
 })(Game || (Game = {}));
 var Game;
 (function (Game) {
-    class Rect {
-        constructor(pos, w, h) {
-            this.pos = pos;
-            this.w = w;
-            this.h = h;
-        }
-        test(rect) {
-            let result = null;
-            if (this.pos.x < rect.pos.x + rect.w &&
-                this.pos.x + this.w > rect.pos.x &&
-                this.pos.y < rect.pos.y + rect.h &&
-                this.h + this.pos.y > rect.pos.y) {
-                let Ax = this.pos.x, Ay = this.pos.y, AX = Ax + this.w, AY = Ay + this.h, Bx = rect.pos.x, By = rect.pos.y, BX = Bx + rect.w, BY = By + rect.h, Cx = Ax < Bx ? Bx : Ax, Cy = Ay < By ? By : Ay, CX = AX < BX ? AX : BX, CY = AY < BY ? AY : BY;
-                result = new Rect(new Game.Vec(Cx, Cy), CX - Cx, CY - Cy);
-            }
-            return result;
-        }
-    }
-    Game.Rect = Rect;
-})(Game || (Game = {}));
-var Game;
-(function (Game) {
     class Scene {
         constructor() {
-            this.hero = new Game.Hero(80, 60);
+            this.hero = new Game.Hero(128, 72);
             this.platforms = [
                 new Game.Platform(32, 72, 48, 8),
                 new Game.Platform(120, 96, 32, 8),
@@ -73,14 +67,19 @@ var Game;
             });
         }
         update() {
-            let hero = this.hero, res = new SAT.Response(), pos = hero.collider.pos, sign = hero.speed.sign();
-            pos.add(hero.speed);
-            for (let i = 0; i < this.platforms.length; i++) {
-                while (this.platforms[i].collider.test(hero.collider)) {
-                    pos.sub(sign);
+            let hero = this.hero, speed = hero.speed, pos = hero.box.pos;
+            pos.x += speed.x;
+            this.platforms.forEach(platform => {
+                if (platform.box.test(hero.box)) {
+                    pos.x -= speed.x;
                 }
-            }
-            ;
+            });
+            pos.y += speed.y;
+            this.platforms.forEach(platform => {
+                if (platform.box.test(hero.box)) {
+                    pos.y -= speed.y;
+                }
+            });
         }
     }
     Game.Scene = Scene;
@@ -91,27 +90,6 @@ var Game;
         constructor(x, y) {
             this.x = x;
             this.y = y;
-        }
-        clone() {
-            return new Vec(this.x, this.y);
-        }
-        add(vec) {
-            this.x += vec.x;
-            this.y += vec.y;
-            return this;
-        }
-        sub(vec) {
-            this.x -= vec.x;
-            this.y -= vec.y;
-            return this;
-        }
-        scale(x, y) {
-            this.x *= x;
-            this.y *= y;
-            return this;
-        }
-        sign() {
-            return new Vec(Math.sign(this.x), Math.sign(this.y));
         }
     }
     Game.Vec = Vec;
@@ -124,30 +102,28 @@ var Game;
     function on(element, event, callback) {
         element.addEventListener(event, callback, false);
     }
-    let canvas, ctx, speed = 2, scene;
+    let canvas, ctx, scene;
     function bind() {
+        const speed = scene.hero.speed;
         on(document, 'keydown', (e) => {
             let key = e.keyCode;
             if (key == 38 || key == 87 || key == 119) {
-                scene.hero.speed.y = -speed;
-            }
-            else if (key == 40 || key == 83 || key == 115) {
-                scene.hero.speed.y = speed;
+                speed.y = -1;
             }
             else if (key == 37 || key == 65 || key == 97) {
-                scene.hero.speed.x = -speed;
+                speed.x = -1;
             }
             else if (key == 39 || key == 68 || key == 100) {
-                scene.hero.speed.x = speed;
+                speed.x = 1;
             }
         });
         on(document, 'keyup', (e) => {
             let key = e.keyCode;
             if (key == 38 || key == 87 || key == 119 || key == 40 || key == 83 || key == 115) {
-                scene.hero.speed.y = 1;
+                speed.y = 1;
             }
             else if (key == 37 || key == 65 || key == 97 || key == 39 || key == 68 || key == 100) {
-                scene.hero.speed.x = 0;
+                speed.x = 0;
             }
         });
     }
