@@ -2,7 +2,7 @@ namespace Game {
 
     export interface Item {
 
-        render(ctx: CanvasRenderingContext2D): void;
+        render(ctx: CanvasRenderingContext2D, sprite: Sprite): void;
 
     }
 

@@ -23,13 +23,19 @@ var Game;
 (function (Game) {
     class Hero {
         constructor(x, y) {
+            this.face = 0;
+            this.frame = 0;
             this.speed = new Game.Vec(0, 1);
             this.box = new Game.Box(new Game.Vec(x, y), 16, 24);
         }
-        render(ctx) {
-            const box = this.box;
-            ctx.fillStyle = '#f0f';
-            ctx.fillRect(box.pos.x, box.pos.y, box.w, box.h);
+        render(ctx, sprite) {
+            let box = this.box;
+            sprite.render(ctx, box.pos.x, box.pos.y, box.w, box.h, this.face * box.h, this.frame);
+        }
+        update(tick) {
+            if (tick % 8 == 0) {
+                this.frame = ++this.frame % 3;
+            }
         }
     }
     Game.Hero = Hero;
@@ -40,7 +46,7 @@ var Game;
         constructor(x, y, width, height) {
             this.box = new Game.Box(new Game.Vec(x, y), width, height);
         }
-        render(ctx) {
+        render(ctx, sprite) {
             const box = this.box;
             ctx.fillStyle = '#0ff';
             ctx.fillRect(box.pos.x, box.pos.y, box.w, box.h);
@@ -52,8 +58,11 @@ var Game;
 (function (Game) {
     class Scene {
         constructor() {
+            this.tick = 0;
             this.hero = new Game.Hero(128, 72);
+            this.sprite = new Game.Sprite('sprite.png');
             this.platforms = [
+                new Game.Platform(0, 0, 256, 16),
                 new Game.Platform(32, 72, 48, 8),
                 new Game.Platform(120, 96, 32, 8),
                 new Game.Platform(192, 48, 48, 8),
@@ -61,13 +70,16 @@ var Game;
             ];
         }
         render(ctx) {
-            this.hero.render(ctx);
+            ctx.fillStyle = "#333";
+            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            this.hero.render(ctx, this.sprite);
             this.platforms.forEach(platform => {
-                platform.render(ctx);
+                platform.render(ctx, this.sprite);
             });
         }
         update() {
             let hero = this.hero, speed = hero.speed, pos = hero.box.pos;
+            hero.update(this.tick++);
             pos.x += speed.x;
             this.platforms.forEach(platform => {
                 if (platform.box.test(hero.box)) {
@@ -83,6 +95,19 @@ var Game;
         }
     }
     Game.Scene = Scene;
+})(Game || (Game = {}));
+var Game;
+(function (Game) {
+    class Sprite {
+        constructor(src) {
+            this.img = new Image();
+            this.img.src = src;
+        }
+        render(ctx, x, y, w, h, top, frame) {
+            ctx.drawImage(this.img, w * frame, top, w, h, x, y, w, h);
+        }
+    }
+    Game.Sprite = Sprite;
 })(Game || (Game = {}));
 var Game;
 (function (Game) {
@@ -104,32 +129,32 @@ var Game;
     }
     let canvas, ctx, scene;
     function bind() {
-        const speed = scene.hero.speed;
+        const hero = scene.hero;
         on(document, 'keydown', (e) => {
             let key = e.keyCode;
             if (key == 38 || key == 87 || key == 119) {
-                speed.y = -1;
+                hero.speed.y = -1;
             }
             else if (key == 37 || key == 65 || key == 97) {
-                speed.x = -1;
+                hero.speed.x = -1;
+                hero.face = 0;
             }
             else if (key == 39 || key == 68 || key == 100) {
-                speed.x = 1;
+                hero.speed.x = 1;
+                hero.face = 1;
             }
         });
         on(document, 'keyup', (e) => {
             let key = e.keyCode;
             if (key == 38 || key == 87 || key == 119 || key == 40 || key == 83 || key == 115) {
-                speed.y = 1;
+                hero.speed.y = 1;
             }
             else if (key == 37 || key == 65 || key == 97 || key == 39 || key == 68 || key == 100) {
-                speed.x = 0;
+                hero.speed.x = 0;
             }
         });
     }
     function render() {
-        ctx.fillStyle = "#000";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
         scene.render(ctx);
     }
     function update() {
