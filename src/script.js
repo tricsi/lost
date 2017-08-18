@@ -30,14 +30,24 @@ var Game;
             this.box = new Game.Box(new Game.Vec(x, y), 16, 24);
         }
         render(ctx, sprite, width) {
-            let box = this.box, pos = box.pos;
-            let frame = this.frame;
-            if (this.walk) {
-                frame = this.speed.x == 0 ? 3 : frame + 3;
+            let box = this.box, pos = box.pos, x = pos.x, y = pos.y, w = box.w, h = box.h, top = this.face * h, walk = this.walk, frame = this.frame;
+            if (walk) {
+                frame = this.speed.x != 0 ? frame : 0;
+                sprite.render(ctx, x, y, w, h, top, frame + 1);
             }
-            sprite.render(ctx, pos.x, pos.y, box.w, box.h, this.face * box.h, frame);
+            else {
+                sprite.render(ctx, x, y, w, h, top, 0);
+                sprite.render(ctx, x, y, w, h, top, frame + 4);
+            }
             if (pos.x + box.w > width) {
-                sprite.render(ctx, pos.x - width, pos.y, box.w, box.h, this.face * box.h, frame);
+                x -= width;
+                if (walk) {
+                    sprite.render(ctx, x, y, w, h, top, frame + 1);
+                }
+                else {
+                    sprite.render(ctx, x, y, w, h, top, 0);
+                    sprite.render(ctx, x, y, w, h, top, frame + 4);
+                }
             }
         }
         update(tick) {
@@ -65,26 +75,34 @@ var Game;
 var Game;
 (function (Game) {
     class Scene {
-        constructor() {
+        constructor(img) {
             this.tick = 0;
             this.width = 256;
             this.hero = new Game.Hero(96, 160);
-            this.sprite = new Game.Sprite('sprite.png');
+            this.sprite = new Game.Sprite(img);
             this.platforms = [
                 new Game.Platform(-50, 0, 350, 16),
                 new Game.Platform(32, 72, 48, 8),
                 new Game.Platform(120, 96, 32, 8),
                 new Game.Platform(192, 48, 48, 8),
-                new Game.Platform(-50, 184, 350, 8)
+                new Game.Platform(-50, 184, 350, 8),
             ];
         }
-        render(ctx) {
+        preRender(ctx) {
             ctx.fillStyle = "#224";
             ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            for (let i = 1; i < this.platforms.length; i++) {
+                let box = this.platforms[i].box, x = box.pos.x, y = box.pos.y, j = 8;
+                this.sprite.render(ctx, x, y, j, 8, 80, 0);
+                for (; j < box.w - 8; j += 8) {
+                    this.sprite.render(ctx, x + j, y, 8, 8, 80, 1);
+                }
+                this.sprite.render(ctx, x + j, y, 8, 8, 80, 2);
+            }
+        }
+        render(ctx) {
+            this.preRender(ctx);
             this.hero.render(ctx, this.sprite, this.width);
-            this.platforms.forEach(platform => {
-                platform.render(ctx, this.sprite);
-            });
         }
         update() {
             let hero = this.hero, speed = hero.speed, pos = hero.box.pos, old = pos.clone();
@@ -116,9 +134,8 @@ var Game;
 var Game;
 (function (Game) {
     class Sprite {
-        constructor(src) {
-            this.img = new Image();
-            this.img.src = src;
+        constructor(img) {
+            this.img = img;
         }
         render(ctx, x, y, w, h, top, frame) {
             ctx.drawImage(this.img, w * frame, top, w, h, x, y, w, h);
@@ -185,11 +202,15 @@ var Game;
         render();
     }
     function run(id) {
-        canvas = $(id);
-        ctx = canvas.getContext('2d');
-        scene = new Game.Scene();
-        bind();
-        update();
+        const img = new Image();
+        on(img, 'load', () => {
+            canvas = $(id);
+            ctx = canvas.getContext('2d');
+            scene = new Game.Scene(img);
+            bind();
+            update();
+        });
+        img.src = 'sprite.png';
     }
     Game.run = run;
 })(Game || (Game = {}));

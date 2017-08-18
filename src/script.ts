@@ -49,11 +49,15 @@ namespace Game {
     }
 
     export function run(id: string) {
-        canvas = <HTMLCanvasElement>$(id);
-        ctx = canvas.getContext('2d');
-        scene = new Scene();
-        bind();
-        update();
+        const img = new Image();
+        on(img, 'load', () => {
+            canvas = <HTMLCanvasElement>$(id);
+            ctx = canvas.getContext('2d');
+            scene = new Scene(img);
+            bind();
+            update();
+        });
+        img.src = 'sprite.png';
     }
 
 }

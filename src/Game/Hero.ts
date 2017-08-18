@@ -15,14 +15,29 @@ namespace Game {
 
         render(ctx: CanvasRenderingContext2D, sprite: Sprite, width: number): void  {
             let box = this.box,
-                pos = box.pos;
-            let frame = this.frame;
-            if (this.walk) {
-                frame = this.speed.x == 0 ? 3 : frame + 3;
+                pos = box.pos,
+                x = pos.x,
+                y = pos.y,
+                w = box.w,
+                h = box.h,
+                top = this.face * h,
+                walk = this.walk,
+                frame = this.frame;
+            if (walk) {
+                frame = this.speed.x != 0 ? frame : 0;
+                sprite.render(ctx, x, y, w, h, top, frame + 1);
+            } else {
+                sprite.render(ctx, x, y, w, h, top, 0);
+                sprite.render(ctx, x, y, w, h, top, frame + 4);
             }
-            sprite.render(ctx, pos.x, pos.y, box.w, box.h, this.face * box.h, frame);
             if (pos.x + box.w > width) {
-                sprite.render(ctx, pos.x - width, pos.y, box.w, box.h, this.face * box.h, frame);
+                x -= width;
+                if (walk) {
+                    sprite.render(ctx, x, y, w, h, top, frame + 1);
+                } else {
+                    sprite.render(ctx, x, y, w, h, top, 0);
+                    sprite.render(ctx, x, y, w, h, top, frame + 4);
+                }
             }
         }
 

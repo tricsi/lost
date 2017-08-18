@@ -4,9 +4,8 @@ namespace Game {
 
         img: HTMLImageElement;
 
-        constructor(src: string) {
-            this.img = new Image();
-            this.img.src = src;
+        constructor(img: HTMLImageElement) {
+            this.img = img;
         }
 
         render(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, top:number, frame: number): void {
