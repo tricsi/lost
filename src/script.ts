@@ -12,6 +12,13 @@ namespace Game {
         ctx: CanvasRenderingContext2D,
         scene: Scene;
 
+    function resize(): void {
+        let body = document.body,
+            portrait = body.clientWidth / body.clientHeight < canvas.width / canvas.height;
+        canvas.style.width = portrait ? '100%' : '';
+        canvas.style.height = portrait ? '' : '100%';
+    }
+    
     function bind(): void {
         const hero = scene.hero;
         on(document, 'keydown', (e: KeyboardEvent) => {
@@ -34,6 +41,7 @@ namespace Game {
                 hero.speed.x = 0;
             }
         });
+        on(window, 'resize', resize);
     }
 
     function update(): void {
@@ -50,6 +58,7 @@ namespace Game {
         ctx = canvas.getContext('2d');
         scene = new Scene(img);
         bind();
+        resize();
         update();
     });
 }

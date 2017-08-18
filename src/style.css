@@ -5,11 +5,10 @@ body, html {
     padding: 0;
     overflow: hidden;
     background: #000;
+    text-align: center;
 }
 
 canvas {
-    width: 768px;
-    height: 576px;
     image-rendering:optimizeSpeed;
     image-rendering:-moz-crisp-edges;
     image-rendering:-o-crisp-edges;

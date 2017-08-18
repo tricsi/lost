@@ -204,6 +204,11 @@ var Game;
         element.addEventListener(event, callback, false);
     }
     let canvas, ctx, scene;
+    function resize() {
+        let body = document.body, portrait = body.clientWidth / body.clientHeight < canvas.width / canvas.height;
+        canvas.style.width = portrait ? '100%' : '';
+        canvas.style.height = portrait ? '' : '100%';
+    }
     function bind() {
         const hero = scene.hero;
         on(document, 'keydown', (e) => {
@@ -229,6 +234,7 @@ var Game;
                 hero.speed.x = 0;
             }
         });
+        on(window, 'resize', resize);
     }
     function update() {
         requestAnimationFrame(() => {
@@ -243,6 +249,7 @@ var Game;
         ctx = canvas.getContext('2d');
         scene = new Game.Scene(img);
         bind();
+        resize();
         update();
     });
 })(Game || (Game = {}));
