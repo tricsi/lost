@@ -14,7 +14,6 @@ namespace Game {
             this.sprite = new Sprite(img);
             this.hero = new Hero(96, 160, this.sprite);
             this.ship = new Ship(160, 136, this.sprite);
-            console.log(this.ship);
             this.platforms = [
                 new Platform(-50, 0, 350, 16),
                 new Platform(32, 72, 48, 8),
@@ -59,8 +58,8 @@ namespace Game {
             let hero = this.hero,
                 speed = hero.speed,
                 pos = hero.box.pos,
-                old = pos.clone();
-            hero.walk = false;
+                old = pos.clone(),
+                walk = false;
             hero.update(this.tick++);
             pos.x += speed.x;
             if (pos.x > this.width) {
@@ -77,9 +76,12 @@ namespace Game {
             this.platforms.forEach(platform => {
                 if (platform.box.test(hero.box)) {
                     pos.y = old.y;
-                    hero.walk = speed.y > 0;
+                    if (speed.y > 0) {
+                        walk = true;
+                    }
                 }
             });
+            hero.walk = walk;
         }
 
     }

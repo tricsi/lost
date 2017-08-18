@@ -25,7 +25,7 @@ var Game;
         constructor(x, y, sprite) {
             this.face = 0;
             this.walk = true;
-            this.frame = 0;
+            this.frame = 1;
             this.sprite = sprite;
             this.speed = new Game.Vec(0, 1);
             this.box = new Game.Box(new Game.Vec(x, y), 16, 24);
@@ -33,7 +33,7 @@ var Game;
         render(ctx, width) {
             let box = this.box, pos = box.pos, x = pos.x, y = pos.y, w = box.w, h = box.h, top = this.face * h, walk = this.walk, frame = this.frame, sprite = this.sprite;
             if (walk) {
-                frame = this.speed.x != 0 ? frame : 0;
+                frame = frame < 3 ? frame : 1;
                 sprite.render(ctx, x, y, w, h, top, frame + 1);
             }
             else {
@@ -53,7 +53,12 @@ var Game;
         }
         update(tick) {
             if (tick % 8 == 0) {
-                this.frame = ++this.frame % 3;
+                if (!this.walk) {
+                    this.frame = ++this.frame % 3;
+                }
+                else if (this.speed.x != 0) {
+                    this.frame = ++this.frame % 4;
+                }
             }
         }
     }
@@ -82,7 +87,6 @@ var Game;
             this.sprite = new Game.Sprite(img);
             this.hero = new Game.Hero(96, 160, this.sprite);
             this.ship = new Game.Ship(160, 136, this.sprite);
-            console.log(this.ship);
             this.platforms = [
                 new Game.Platform(-50, 0, 350, 16),
                 new Game.Platform(32, 72, 48, 8),
@@ -118,8 +122,7 @@ var Game;
             this.hero.render(ctx, this.width);
         }
         update() {
-            let hero = this.hero, speed = hero.speed, pos = hero.box.pos, old = pos.clone();
-            hero.walk = false;
+            let hero = this.hero, speed = hero.speed, pos = hero.box.pos, old = pos.clone(), walk = false;
             hero.update(this.tick++);
             pos.x += speed.x;
             if (pos.x > this.width) {
@@ -137,9 +140,12 @@ var Game;
             this.platforms.forEach(platform => {
                 if (platform.box.test(hero.box)) {
                     pos.y = old.y;
-                    hero.walk = speed.y > 0;
+                    if (speed.y > 0) {
+                        walk = true;
+                    }
                 }
             });
+            hero.walk = walk;
         }
     }
     Game.Scene = Scene;

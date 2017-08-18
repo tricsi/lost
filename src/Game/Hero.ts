@@ -7,7 +7,7 @@ namespace Game {
         box: Box;
         face: number = 0;
         walk: boolean = true;
-        frame: number = 0;
+        frame: number = 1;
 
         constructor(x: number, y: number, sprite: Sprite) {
             this.sprite = sprite;
@@ -27,7 +27,7 @@ namespace Game {
                 frame = this.frame,
                 sprite = this.sprite;
             if (walk) {
-                frame = this.speed.x != 0 ? frame : 0;
+                frame = frame < 3 ? frame : 1;
                 sprite.render(ctx, x, y, w, h, top, frame + 1);
             } else {
                 sprite.render(ctx, x, y, w, h, top, 0);
@@ -46,7 +46,11 @@ namespace Game {
 
         update(tick: number) {
             if (tick % 8 == 0) {
-                this.frame = ++this.frame % 3;
+                if (!this.walk) {
+                    this.frame = ++this.frame % 3;
+                } else if (this.speed.x != 0) {
+                    this.frame = ++this.frame % 4;
+                }
             }
         }
 
