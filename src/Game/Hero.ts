@@ -2,18 +2,20 @@ namespace Game {
 
     export class Hero {
         
+        sprite: Sprite;
         speed: Vec;
         box: Box;
         face: number = 0;
         walk: boolean = true;
         frame: number = 0;
 
-        constructor(x: number, y: number) {
+        constructor(x: number, y: number, sprite: Sprite) {
+            this.sprite = sprite;
             this.speed = new Vec(0, 1);
             this.box = new Box(new Vec(x, y), 16, 24);
         }
 
-        render(ctx: CanvasRenderingContext2D, sprite: Sprite, width: number): void  {
+        render(ctx: CanvasRenderingContext2D, width: number): void  {
             let box = this.box,
                 pos = box.pos,
                 x = pos.x,
@@ -22,7 +24,8 @@ namespace Game {
                 h = box.h,
                 top = this.face * h,
                 walk = this.walk,
-                frame = this.frame;
+                frame = this.frame,
+                sprite = this.sprite;
             if (walk) {
                 frame = this.speed.x != 0 ? frame : 0;
                 sprite.render(ctx, x, y, w, h, top, frame + 1);

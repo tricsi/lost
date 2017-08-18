@@ -5,12 +5,16 @@ namespace Game {
         sprite: Sprite;
         tick: number = 0;
         hero: Hero;
+        ship: Ship;
         width: number = 256;
+        cache: HTMLImageElement;
         platforms: Platform[];
 
         constructor(img: HTMLImageElement) {
-            this.hero = new Hero(96, 160);
             this.sprite = new Sprite(img);
+            this.hero = new Hero(96, 160, this.sprite);
+            this.ship = new Ship(160, 136, this.sprite);
+            console.log(this.ship);
             this.platforms = [
                 new Platform(-50, 0, 350, 16),
                 new Platform(32, 72, 48, 8),
@@ -20,8 +24,15 @@ namespace Game {
             ];
         }
 
-        preRender(ctx: CanvasRenderingContext2D): void {
-            ctx.fillStyle = "#224";
+        back(ctx: CanvasRenderingContext2D): void {
+            if (this.cache) {
+                ctx.drawImage(this.cache, 0, 0);
+                return;
+            }
+            let sky = ctx.createLinearGradient(0, 0, 0, 192);
+            sky.addColorStop(0, "#002");
+            sky.addColorStop(1, "#224");
+            ctx.fillStyle = sky;
             ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
             for (let i = 1; i < this.platforms.length; i++) {
                 let box = this.platforms[i].box,
@@ -34,11 +45,14 @@ namespace Game {
                 }
                 this.sprite.render(ctx, x + j, y, 8, 8, 80, 2);
             }
+            this.cache = new Image();
+            this.cache.src = ctx.canvas.toDataURL();
         }
 
         render(ctx: CanvasRenderingContext2D): void {
-            this.preRender(ctx);
-            this.hero.render(ctx, this.sprite, this.width);
+            this.back(ctx);
+            this.ship.render(ctx);
+            this.hero.render(ctx, this.width);
         }
 
         update(): void {

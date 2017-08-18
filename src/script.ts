@@ -36,30 +36,20 @@ namespace Game {
         });
     }
 
-    function render(): void {
-        scene.render(ctx);
-    }
-
     function update(): void {
         requestAnimationFrame(() => {
             update();
         });
         scene.update();
-        render();
+        scene.render(ctx);
     }
 
-    export function run(id: string) {
-        const img = new Image();
-        on(img, 'load', () => {
-            canvas = <HTMLCanvasElement>$(id);
-            ctx = canvas.getContext('2d');
-            scene = new Scene(img);
-            bind();
-            update();
-        });
-        img.src = 'sprite.png';
-    }
-
+    on(window, 'load', () => {
+        const img = <HTMLImageElement>$('#sprite');
+        canvas = <HTMLCanvasElement>$('#game');
+        ctx = canvas.getContext('2d');
+        scene = new Scene(img);
+        bind();
+        update();
+    });
 }
-
-Game.run('#game');
