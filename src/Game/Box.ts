@@ -20,12 +20,12 @@ namespace Game {
         }
 
         intersect(box: Box): Box {
-            let Ax = this.pos.x,
-                Ay = this.pos.y,
+            let Ax = Math.round(this.pos.x),
+                Ay = Math.round(this.pos.y),
                 AX = Ax + this.w,
                 AY = Ay + this.h,
-                Bx = box.pos.x,
-                By = box.pos.y,
+                Bx = Math.round(box.pos.x),
+                By = Math.round(box.pos.y),
                 BX = Bx + box.w,
                 BY = By + box.h,
                 Cx = Ax < Bx ? Bx : Ax,
@@ -35,7 +35,7 @@ namespace Game {
             return new Box(
                 new Vec(Cx, Cy),
                 CX - Cx,
-                CY- Cy
+                CY - Cy
             );
         }
 

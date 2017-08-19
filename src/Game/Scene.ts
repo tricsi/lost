@@ -2,6 +2,7 @@ namespace Game {
 
     export class Scene {
 
+        ictx: CanvasRenderingContext2D;
         sprite: Sprite;
         tick: number = 0;
         hero: Hero;
@@ -11,10 +12,11 @@ namespace Game {
         enemies: Enemy[];
         platforms: Platform[];
 
-        constructor(ctx: CanvasRenderingContext2D, img: HTMLImageElement) {
+        constructor(ictx: CanvasRenderingContext2D, img: HTMLImageElement) {
+            this.ictx = ictx;
             this.sprite = new Sprite(img, this.width);
-            this.hero = new Hero(96, 160, this.sprite.crop(ctx, 0, 0, 112, 48));
-            this.ship = new Ship(160, 136, this.sprite.crop(ctx, 0, 88, 48, 48));
+            this.hero = new Hero(96, 160, this.sprite.crop(ictx, 0, 0, 112, 48));
+            this.ship = new Ship(160, 136, this.sprite.crop(ictx, 0, 88, 48, 48));
             this.platforms = [
                 new Platform(-50, 0, 350, 16),
                 new Platform(32, 72, 48, 8),
@@ -22,7 +24,7 @@ namespace Game {
                 new Platform(192, 48, 48, 8),
                 new Platform(-50, 184, 350, 8),
             ];
-            let sprite = this.sprite.crop(ctx, 0, 48, 48, 16),
+            let sprite = this.sprite.crop(ictx, 0, 48, 48, 16),
                 speed = new Vec(.5, -.5);
             this.enemies = [
                 new Enemy(new Vec(0, 20), speed.clone(), sprite),
@@ -62,19 +64,53 @@ namespace Game {
             this.back(ctx);
             this.ship.render(ctx);
             this.hero.render(ctx);
+            this.hero.renderJet(ctx);
             this.enemies.forEach(enemy => {
                 enemy.render(ctx);
             });
         }
 
         update(): void {
-            this.hero.update(this.tick);
-            this.move(this.hero);
-            this.enemies.forEach(enemy => {
+            let hero = this.hero;
+            hero.update(this.tick);
+            this.move(hero);
+            for (let i = 0; i < this.enemies.length; i++) {
+                let enemy = this.enemies[i];
                 enemy.update(this.tick);
                 this.move(enemy);
-            });
+                if (this.collide(hero, enemy)) {
+                    this.enemies.splice(i, 1);
+                }
+            }
             this.tick++;
+        }
+
+        collide(a: Item, b: Item): boolean {
+            let ctx = this.ictx;
+            if (a.box.test(b.box)) {
+                let box = a.box.intersect(b.box),
+                    x = Math.round(box.pos.x),
+                    y = Math.round(box.pos.y),
+                    w = box.w + 1,
+                    h = box.h + 1;
+
+                ctx.clearRect(x, y, w, h);
+                a.render(ctx);
+                let ad = ctx.getImageData(x, y, w, h);
+
+                ctx.clearRect(x, y, w, h);
+                b.render(ctx);
+                let bd = ctx.getImageData(x, y, w, h);
+
+                let length = ad.data.length,
+                    resolution = 4 * 3;
+                for (let j = 3; j < length; j += resolution) {
+                    if (ad.data[j] && bd.data[j]) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         move(item: Item) {

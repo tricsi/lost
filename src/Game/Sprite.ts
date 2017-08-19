@@ -12,10 +12,10 @@ namespace Game {
 
         render(ctx: CanvasRenderingContext2D, box: Box, top:number, frame: number): void {
             let pos = box.pos,
-                x = Math.round(pos.x),
-                y = Math.round(pos.y),
-                w = Math.round(box.w),
-                h = Math.round(box.h);
+                x = pos.x,
+                y = pos.y,
+                w = box.w,
+                h = box.h;
             ctx.drawImage(this.img, w * frame, top, w, h, x, y, w, h);
             if (x + w > this.width) {
                 ctx.drawImage(this.img, w * frame, top, w, h, x - this.width, y, w, h);

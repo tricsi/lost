@@ -55,10 +55,12 @@ namespace Game {
     }
 
     on(window, 'load', () => {
-        const img = <HTMLImageElement>$('#sprite');
         canvas = <HTMLCanvasElement>$('#game');
         ctx = canvas.getContext('2d');
-        scene = new Scene(ctx, img);
+        scene = new Scene(
+            (<HTMLCanvasElement>$('#test')).getContext('2d'),
+            <HTMLImageElement>$('#sprite')
+        );
         bind();
         resize();
         update();

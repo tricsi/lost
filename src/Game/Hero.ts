@@ -17,22 +17,20 @@ namespace Game {
         }
 
         render(ctx: CanvasRenderingContext2D): void  {
-            let box = this.box.clone(),
-                pos = box.pos,
-                x = pos.x,
-                y = pos.y,
-                w = box.w,
-                h = box.h,
-                top = this.face * h,
-                walk = this.walk,
-                frame = this.frame,
-                sprite = this.sprite;
-            if (walk) {
+            let box = this.box,
+                top = this.face * box.h,
+                frame = this.frame;
+            if (this.walk) {
                 frame = frame < 3 ? frame : 1;
-                sprite.render(ctx, box, top, frame + 1);
+                this.sprite.render(ctx, box, top, frame + 1);
             } else {
-                sprite.render(ctx, box, top, 0);
-                sprite.render(ctx, box, top, frame + 4);
+                this.sprite.render(ctx, box, top, 0);
+            }
+        }
+
+        renderJet(ctx: CanvasRenderingContext2D): void {
+            if (!this.walk) {
+                this.sprite.render(ctx, this.box, this.face * this.box.h, this.frame + 4);
             }
         }
 
