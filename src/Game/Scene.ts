@@ -8,10 +8,11 @@ namespace Game {
         ship: Ship;
         width: number = 256;
         cache: HTMLImageElement;
+        enemies: Enemy[];
         platforms: Platform[];
 
         constructor(ctx: CanvasRenderingContext2D, img: HTMLImageElement) {
-            this.sprite = new Sprite(img);
+            this.sprite = new Sprite(img, this.width);
             this.hero = new Hero(96, 160, this.sprite.crop(ctx, 0, 0, 112, 48));
             this.ship = new Ship(160, 136, this.sprite.crop(ctx, 0, 88, 48, 48));
             this.platforms = [
@@ -21,6 +22,14 @@ namespace Game {
                 new Platform(192, 48, 48, 8),
                 new Platform(-50, 184, 350, 8),
             ];
+            let sprite = this.sprite.crop(ctx, 0, 48, 48, 16),
+                speed = new Vec(.5, -.5);
+            this.enemies = [
+                new Enemy(new Vec(0, 20), speed.clone(), sprite),
+                new Enemy(new Vec(0, 60), speed.clone(), sprite),
+                new Enemy(new Vec(0, 100), speed.clone(), sprite),
+                new Enemy(new Vec(0, 140), speed.clone(), sprite),
+            ]
         }
 
         back(ctx: CanvasRenderingContext2D): void {
@@ -34,15 +43,16 @@ namespace Game {
             ctx.fillStyle = sky;
             ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
             for (let i = 1; i < this.platforms.length; i++) {
-                let box = this.platforms[i].box,
-                    x = box.pos.x,
-                    y = box.pos.y,
-                    j = 8;
-                this.sprite.render(ctx, x, y, j, 8, 80, 0);
-                for (; j < box.w - 8; j += 8) {
-                    this.sprite.render(ctx, x + j, y, 8, 8, 80, 1);
+                let box = this.platforms[i].box.clone(),
+                    num = Math.round(box.w / 8) - 1;
+                box.w = 8;
+                this.sprite.render(ctx, box, 80, 0);
+                for (let j = 1; j < num; j++) {
+                    box.pos.x += box.w;
+                    this.sprite.render(ctx, box, 80, 1);
                 }
-                this.sprite.render(ctx, x + j, y, 8, 8, 80, 2);
+                box.pos.x += box.w;
+                this.sprite.render(ctx, box, 80, 2);
             }
             this.cache = new Image();
             this.cache.src = ctx.canvas.toDataURL();
@@ -51,37 +61,53 @@ namespace Game {
         render(ctx: CanvasRenderingContext2D): void {
             this.back(ctx);
             this.ship.render(ctx);
-            this.hero.render(ctx, this.width);
+            this.hero.render(ctx);
+            this.enemies.forEach(enemy => {
+                enemy.render(ctx);
+            });
         }
 
         update(): void {
-            let hero = this.hero,
-                speed = hero.speed,
-                pos = hero.box.pos,
+            this.hero.update(this.tick);
+            this.move(this.hero);
+            this.enemies.forEach(enemy => {
+                enemy.update(this.tick);
+                this.move(enemy);
+            });
+            this.tick++;
+        }
+
+        move(item: Item) {
+            let collided = item.collided,
+                speed = item.speed,
+                pos = item.box.pos,
                 old = pos.clone(),
                 walk = false;
-            hero.update(this.tick++);
             pos.x += speed.x;
             if (pos.x > this.width) {
                 pos.x -= this.width;
             } else if (pos.x < 0) {
                 pos.x += this.width;
             }
+            collided.x = 0;
             this.platforms.forEach(platform => {
-                if (platform.box.test(hero.box)) {
+                if (platform.box.test(item.box)) {
                     pos.x = old.x;
+                    collided.x = 1;
                 }
             });
             pos.y += speed.y;
+            collided.y = 0;
             this.platforms.forEach(platform => {
-                if (platform.box.test(hero.box)) {
+                if (platform.box.test(item.box)) {
                     pos.y = old.y;
+                    collided.y = 1;
                     if (speed.y > 0) {
                         walk = true;
                     }
                 }
             });
-            hero.walk = walk;
+            item.walk = walk;
         }
 
     }

@@ -3,13 +3,23 @@ namespace Game {
     export class Sprite {
 
         img: HTMLImageElement;
+        width: number;
 
-        constructor(img: HTMLImageElement) {
+        constructor(img: HTMLImageElement, width: number) {
             this.img = img;
+            this.width = width;
         }
 
-        render(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, top:number, frame: number): void {
+        render(ctx: CanvasRenderingContext2D, box: Box, top:number, frame: number): void {
+            let pos = box.pos,
+                x = Math.round(pos.x),
+                y = Math.round(pos.y),
+                w = Math.round(box.w),
+                h = Math.round(box.h);
             ctx.drawImage(this.img, w * frame, top, w, h, x, y, w, h);
+            if (x + w > this.width) {
+                ctx.drawImage(this.img, w * frame, top, w, h, x - this.width, y, w, h);
+            }
         }
 
         crop(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, flipV: boolean = false, flipH: boolean = false) {
@@ -27,7 +37,7 @@ namespace Game {
             img.src = canvas.toDataURL();
             canvas.width = width;
             canvas.height = height;
-            return new Sprite(img);
+            return new Sprite(img, this.width);
         }
     }
 

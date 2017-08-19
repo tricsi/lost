@@ -1,7 +1,8 @@
 namespace Game {
 
-    export class Hero {
+    export class Hero implements Item {
         
+        collided: Vec = new Vec(0, 0);
         sprite: Sprite;
         speed: Vec;
         box: Box;
@@ -15,8 +16,8 @@ namespace Game {
             this.box = new Box(new Vec(x, y), 16, 24);
         }
 
-        render(ctx: CanvasRenderingContext2D, width: number): void  {
-            let box = this.box,
+        render(ctx: CanvasRenderingContext2D): void  {
+            let box = this.box.clone(),
                 pos = box.pos,
                 x = pos.x,
                 y = pos.y,
@@ -28,19 +29,10 @@ namespace Game {
                 sprite = this.sprite;
             if (walk) {
                 frame = frame < 3 ? frame : 1;
-                sprite.render(ctx, x, y, w, h, top, frame + 1);
+                sprite.render(ctx, box, top, frame + 1);
             } else {
-                sprite.render(ctx, x, y, w, h, top, 0);
-                sprite.render(ctx, x, y, w, h, top, frame + 4);
-            }
-            if (pos.x + box.w > width) {
-                x -= width;
-                if (walk) {
-                    sprite.render(ctx, x, y, w, h, top, frame + 1);
-                } else {
-                    sprite.render(ctx, x, y, w, h, top, 0);
-                    sprite.render(ctx, x, y, w, h, top, frame + 4);
-                }
+                sprite.render(ctx, box, top, 0);
+                sprite.render(ctx, box, top, frame + 4);
             }
         }
 

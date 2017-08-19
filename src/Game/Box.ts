@@ -39,6 +39,10 @@ namespace Game {
             );
         }
 
+        clone(): Box {
+            return new Box(this.pos.clone(), this.w, this.h);
+        }
+
     }
 
 }

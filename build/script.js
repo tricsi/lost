@@ -449,13 +449,45 @@ var Game;
             let Ax = this.pos.x, Ay = this.pos.y, AX = Ax + this.w, AY = Ay + this.h, Bx = box.pos.x, By = box.pos.y, BX = Bx + box.w, BY = By + box.h, Cx = Ax < Bx ? Bx : Ax, Cy = Ay < By ? By : Ay, CX = AX < BX ? AX : BX, CY = AY < BY ? AY : BY;
             return new Box(new Game.Vec(Cx, Cy), CX - Cx, CY - Cy);
         }
+        clone() {
+            return new Box(this.pos.clone(), this.w, this.h);
+        }
     }
     Game.Box = Box;
 })(Game || (Game = {}));
 var Game;
 (function (Game) {
+    class Enemy {
+        constructor(pos, speed, sprite) {
+            this.collided = new Game.Vec(0, 0);
+            this.frame = 0;
+            this.walk = false;
+            this.box = new Game.Box(pos, 16, 16);
+            this.speed = speed;
+            this.sprite = sprite;
+        }
+        render(ctx) {
+            this.sprite.render(ctx, this.box, 0, this.frame != 3 ? this.frame : 1);
+        }
+        update(tick) {
+            if (tick % 8 == 0) {
+                this.frame = ++this.frame % 3;
+            }
+            if (this.collided.y) {
+                this.speed.y = -this.speed.y;
+            }
+            if (this.collided.x) {
+                this.speed.x = -this.speed.x;
+            }
+        }
+    }
+    Game.Enemy = Enemy;
+})(Game || (Game = {}));
+var Game;
+(function (Game) {
     class Hero {
         constructor(x, y, sprite) {
+            this.collided = new Game.Vec(0, 0);
             this.face = 0;
             this.walk = true;
             this.frame = 1;
@@ -463,25 +495,15 @@ var Game;
             this.speed = new Game.Vec(0, 1);
             this.box = new Game.Box(new Game.Vec(x, y), 16, 24);
         }
-        render(ctx, width) {
-            let box = this.box, pos = box.pos, x = pos.x, y = pos.y, w = box.w, h = box.h, top = this.face * h, walk = this.walk, frame = this.frame, sprite = this.sprite;
+        render(ctx) {
+            let box = this.box.clone(), pos = box.pos, x = pos.x, y = pos.y, w = box.w, h = box.h, top = this.face * h, walk = this.walk, frame = this.frame, sprite = this.sprite;
             if (walk) {
                 frame = frame < 3 ? frame : 1;
-                sprite.render(ctx, x, y, w, h, top, frame + 1);
+                sprite.render(ctx, box, top, frame + 1);
             }
             else {
-                sprite.render(ctx, x, y, w, h, top, 0);
-                sprite.render(ctx, x, y, w, h, top, frame + 4);
-            }
-            if (pos.x + box.w > width) {
-                x -= width;
-                if (walk) {
-                    sprite.render(ctx, x, y, w, h, top, frame + 1);
-                }
-                else {
-                    sprite.render(ctx, x, y, w, h, top, 0);
-                    sprite.render(ctx, x, y, w, h, top, frame + 4);
-                }
+                sprite.render(ctx, box, top, 0);
+                sprite.render(ctx, box, top, frame + 4);
             }
         }
         update(tick) {
@@ -517,7 +539,7 @@ var Game;
         constructor(ctx, img) {
             this.tick = 0;
             this.width = 256;
-            this.sprite = new Game.Sprite(img);
+            this.sprite = new Game.Sprite(img, this.width);
             this.hero = new Game.Hero(96, 160, this.sprite.crop(ctx, 0, 0, 112, 48));
             this.ship = new Game.Ship(160, 136, this.sprite.crop(ctx, 0, 88, 48, 48));
             this.platforms = [
@@ -526,6 +548,13 @@ var Game;
                 new Game.Platform(120, 96, 32, 8),
                 new Game.Platform(192, 48, 48, 8),
                 new Game.Platform(-50, 184, 350, 8),
+            ];
+            let sprite = this.sprite.crop(ctx, 0, 48, 48, 16), speed = new Game.Vec(.5, -.5);
+            this.enemies = [
+                new Game.Enemy(new Game.Vec(0, 20), speed.clone(), sprite),
+                new Game.Enemy(new Game.Vec(0, 60), speed.clone(), sprite),
+                new Game.Enemy(new Game.Vec(0, 100), speed.clone(), sprite),
+                new Game.Enemy(new Game.Vec(0, 140), speed.clone(), sprite),
             ];
         }
         back(ctx) {
@@ -539,12 +568,15 @@ var Game;
             ctx.fillStyle = sky;
             ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
             for (let i = 1; i < this.platforms.length; i++) {
-                let box = this.platforms[i].box, x = box.pos.x, y = box.pos.y, j = 8;
-                this.sprite.render(ctx, x, y, j, 8, 80, 0);
-                for (; j < box.w - 8; j += 8) {
-                    this.sprite.render(ctx, x + j, y, 8, 8, 80, 1);
+                let box = this.platforms[i].box.clone(), num = Math.round(box.w / 8) - 1;
+                box.w = 8;
+                this.sprite.render(ctx, box, 80, 0);
+                for (let j = 1; j < num; j++) {
+                    box.pos.x += box.w;
+                    this.sprite.render(ctx, box, 80, 1);
                 }
-                this.sprite.render(ctx, x + j, y, 8, 8, 80, 2);
+                box.pos.x += box.w;
+                this.sprite.render(ctx, box, 80, 2);
             }
             this.cache = new Image();
             this.cache.src = ctx.canvas.toDataURL();
@@ -552,11 +584,22 @@ var Game;
         render(ctx) {
             this.back(ctx);
             this.ship.render(ctx);
-            this.hero.render(ctx, this.width);
+            this.hero.render(ctx);
+            this.enemies.forEach(enemy => {
+                enemy.render(ctx);
+            });
         }
         update() {
-            let hero = this.hero, speed = hero.speed, pos = hero.box.pos, old = pos.clone(), walk = false;
-            hero.update(this.tick++);
+            this.hero.update(this.tick);
+            this.move(this.hero);
+            this.enemies.forEach(enemy => {
+                enemy.update(this.tick);
+                this.move(enemy);
+            });
+            this.tick++;
+        }
+        move(item) {
+            let collided = item.collided, speed = item.speed, pos = item.box.pos, old = pos.clone(), walk = false;
             pos.x += speed.x;
             if (pos.x > this.width) {
                 pos.x -= this.width;
@@ -564,21 +607,25 @@ var Game;
             else if (pos.x < 0) {
                 pos.x += this.width;
             }
+            collided.x = 0;
             this.platforms.forEach(platform => {
-                if (platform.box.test(hero.box)) {
+                if (platform.box.test(item.box)) {
                     pos.x = old.x;
+                    collided.x = 1;
                 }
             });
             pos.y += speed.y;
+            collided.y = 0;
             this.platforms.forEach(platform => {
-                if (platform.box.test(hero.box)) {
+                if (platform.box.test(item.box)) {
                     pos.y = old.y;
+                    collided.y = 1;
                     if (speed.y > 0) {
                         walk = true;
                     }
                 }
             });
-            hero.walk = walk;
+            item.walk = walk;
         }
     }
     Game.Scene = Scene;
@@ -596,8 +643,7 @@ var Game;
         }
         render(ctx) {
             this.boxes.forEach((box, i) => {
-                let pos = box.pos, top = box.h * i;
-                this.sprite.render(ctx, pos.x, pos.y, box.w, box.h, top, 0);
+                this.sprite.render(ctx, box, box.h * i, 0);
             });
         }
     }
@@ -606,11 +652,16 @@ var Game;
 var Game;
 (function (Game) {
     class Sprite {
-        constructor(img) {
+        constructor(img, width) {
             this.img = img;
+            this.width = width;
         }
-        render(ctx, x, y, w, h, top, frame) {
+        render(ctx, box, top, frame) {
+            let pos = box.pos, x = Math.round(pos.x), y = Math.round(pos.y), w = Math.round(box.w), h = Math.round(box.h);
             ctx.drawImage(this.img, w * frame, top, w, h, x, y, w, h);
+            if (x + w > this.width) {
+                ctx.drawImage(this.img, w * frame, top, w, h, x - this.width, y, w, h);
+            }
         }
         crop(ctx, x, y, w, h, flipV = false, flipH = false) {
             let img = new Image(), canvas = ctx.canvas, width = canvas.width, height = canvas.height;
@@ -624,7 +675,7 @@ var Game;
             img.src = canvas.toDataURL();
             canvas.width = width;
             canvas.height = height;
-            return new Sprite(img);
+            return new Sprite(img, this.width);
         }
     }
     Game.Sprite = Sprite;
