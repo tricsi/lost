@@ -17,7 +17,7 @@ body, html {
         image-rendering: pixelated;
 }
 
-#test, img {
+img {
     display: none;
 }
 /*# sourceMappingURL=style.css.map */

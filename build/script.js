@@ -610,20 +610,31 @@ var Game;
             this.tick++;
         }
         collide(a, b) {
-            let ctx = this.ictx;
-            if (a.box.test(b.box)) {
-                let box = a.box.intersect(b.box), x = Math.round(box.pos.x), y = Math.round(box.pos.y), w = box.w + 1, h = box.h + 1;
-                ctx.clearRect(x, y, w, h);
-                a.render(ctx);
-                let ad = ctx.getImageData(x, y, w, h);
-                ctx.clearRect(x, y, w, h);
-                b.render(ctx);
-                let bd = ctx.getImageData(x, y, w, h);
-                let length = ad.data.length, resolution = 4 * 3;
-                for (let j = 3; j < length; j += resolution) {
-                    if (ad.data[j] && bd.data[j]) {
-                        return true;
-                    }
+            let ctx = this.ictx, width = this.width, ab = a.box.clone(), bb = b.box.clone(), retest = false;
+            if (!ab.test(bb)) {
+                if (ab.pos.x + ab.w > width) {
+                    ab.pos.x -= width;
+                    retest = true;
+                }
+                if (bb.pos.x + bb.w > width) {
+                    bb.pos.x -= width;
+                    retest = true;
+                }
+                if (!retest || !ab.test(bb)) {
+                    return false;
+                }
+            }
+            let box = ab.intersect(bb), x = Math.round(box.pos.x), y = Math.round(box.pos.y), w = box.w + 1, h = box.h + 1;
+            ctx.clearRect(x, y, w, h);
+            a.render(ctx);
+            let ad = ctx.getImageData(x, y, w, h);
+            ctx.clearRect(x, y, w, h);
+            b.render(ctx);
+            let bd = ctx.getImageData(x, y, w, h);
+            let length = ad.data.length, resolution = 4 * 3;
+            for (let j = 3; j < length; j += resolution) {
+                if (ad.data[j] && bd.data[j]) {
+                    return true;
                 }
             }
             return false;
