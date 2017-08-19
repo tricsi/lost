@@ -1,3 +1,5 @@
+/// <reference path="../typings/index.d.ts" />
+
 namespace Game {
 
     function $(query: string, element?: NodeSelector): Element {

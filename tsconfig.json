@@ -5,9 +5,10 @@
         "module": "amd",
         "sourceMap": true,
         "watch": true,
-        "outFile": "src/script.js"
+        "outFile": "./script.js"
     },
     "include": [
+        "./node_modules/jsfxr/jsfxr.js",
         "src/Game/*.ts",
         "src/script.ts"
     ]
