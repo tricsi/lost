@@ -10,10 +10,10 @@ namespace Game {
         cache: HTMLImageElement;
         platforms: Platform[];
 
-        constructor(img: HTMLImageElement) {
+        constructor(ctx: CanvasRenderingContext2D, img: HTMLImageElement) {
             this.sprite = new Sprite(img);
-            this.hero = new Hero(96, 160, this.sprite);
-            this.ship = new Ship(160, 136, this.sprite);
+            this.hero = new Hero(96, 160, this.sprite.crop(ctx, 0, 0, 112, 48));
+            this.ship = new Ship(160, 136, this.sprite.crop(ctx, 0, 88, 48, 48));
             this.platforms = [
                 new Platform(-50, 0, 350, 16),
                 new Platform(32, 72, 48, 8),

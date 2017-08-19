@@ -514,12 +514,12 @@ var Game;
 var Game;
 (function (Game) {
     class Scene {
-        constructor(img) {
+        constructor(ctx, img) {
             this.tick = 0;
             this.width = 256;
             this.sprite = new Game.Sprite(img);
-            this.hero = new Game.Hero(96, 160, this.sprite);
-            this.ship = new Game.Ship(160, 136, this.sprite);
+            this.hero = new Game.Hero(96, 160, this.sprite.crop(ctx, 0, 0, 112, 48));
+            this.ship = new Game.Ship(160, 136, this.sprite.crop(ctx, 0, 88, 48, 48));
             this.platforms = [
                 new Game.Platform(-50, 0, 350, 16),
                 new Game.Platform(32, 72, 48, 8),
@@ -596,7 +596,7 @@ var Game;
         }
         render(ctx) {
             this.boxes.forEach((box, i) => {
-                let pos = box.pos, top = box.h * i + 88;
+                let pos = box.pos, top = box.h * i;
                 this.sprite.render(ctx, pos.x, pos.y, box.w, box.h, top, 0);
             });
         }
@@ -611,6 +611,20 @@ var Game;
         }
         render(ctx, x, y, w, h, top, frame) {
             ctx.drawImage(this.img, w * frame, top, w, h, x, y, w, h);
+        }
+        crop(ctx, x, y, w, h, flipV = false, flipH = false) {
+            let img = new Image(), canvas = ctx.canvas, width = canvas.width, height = canvas.height;
+            canvas.width = w;
+            canvas.height = h;
+            ctx.save();
+            ctx.translate(flipV ? w : 0, flipH ? h : 0);
+            ctx.scale(flipV ? -1 : 1, flipH ? -1 : 1);
+            ctx.drawImage(this.img, -x, -y);
+            ctx.restore();
+            img.src = canvas.toDataURL();
+            canvas.width = width;
+            canvas.height = height;
+            return new Sprite(img);
         }
     }
     Game.Sprite = Sprite;
@@ -681,7 +695,7 @@ var Game;
         const img = $('#sprite');
         canvas = $('#game');
         ctx = canvas.getContext('2d');
-        scene = new Game.Scene(img);
+        scene = new Game.Scene(ctx, img);
         bind();
         resize();
         update();
