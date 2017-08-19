@@ -119,7 +119,7 @@ namespace Game {
             let bd = ctx.getImageData(x, y, w, h);
 
             let length = ad.data.length,
-                resolution = 4 * 3;
+                resolution = 4 * 5;
             for (let j = 3; j < length; j += resolution) {
                 if (ad.data[j] && bd.data[j]) {
                     return true;
