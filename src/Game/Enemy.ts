@@ -5,23 +5,20 @@ namespace Game {
         collided: Vec = new Vec(0, 0);
         sprite: Sprite;
         speed: Vec;
-        type: number;
         color: number;
         frame: number = 0;
         walk: boolean = false;
         box: Box;
 
-        constructor(pos: Vec, speed: Vec, sprite: Sprite, type: number = 0, color: number = 0) {
+        constructor(pos: Vec, speed: Vec, sprite: Sprite, color: number = 0) {
             this.box = new Box(pos, 16, 16);
             this.speed = speed;
             this.sprite = sprite;
-            this.type = type;
             this.color = color;
         }
 
         render(ctx: CanvasRenderingContext2D): void  {
-            let top = this.type + this.color * 2;
-            this.sprite.render(ctx, this.box, top, this.frame != 3 ? this.frame : 1);
+            this.sprite.render(ctx, this.box, this.color, this.frame != 3 ? this.frame : 1);
         }
 
         update(tick: number): void {

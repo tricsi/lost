@@ -21,8 +21,12 @@ namespace Game {
             this.initEnemies();
         }
 
+        ready() {
+            return Sprite.load == Sprite.loaded;
+        }
+
         initHero(): void {
-            const sprite = this.sprite.crop(this.ictx, 0, 0, 64, 48);
+            const sprite = this.sprite.crop(this.ictx, 0, 0, 64, 48, []);
             const jetSprite = this.sprite.crop(this.ictx, 64, 0, 48, 48, [[255, 204, 0]]);
             this.hero = new Hero(96, 160, sprite, jetSprite);
         }
@@ -50,15 +54,15 @@ namespace Game {
 
         initEnemies(): void {
             const speed = new Vec(.5, -.5);
-            const sprite = this.sprite.crop(this.ictx, 0, 48, 48, 32, [
-                [255, 102, 102],
-                [255, 102, 255],
-                [102, 102, 255],
-                [102, 255, 255],
+            const sprite = this.sprite.crop(this.ictx, 0, 48, 48, 16, [
+                [255, 102, 102, 192],
+                [255, 102, 255, 192],
+                [102, 102, 255, 192],
+                [102, 255, 255, 192],
             ]);
             this.enemies = [];
             for (let i = 0; i < 4; i++) {
-                let enemy = new Enemy(new Vec(0, i * 40 + 20), speed.clone(), sprite, 0, i + 1);
+                let enemy = new Enemy(new Vec(0, i * 40 + 20), speed.clone(), sprite, i + 1);
                 this.enemies.push(enemy);
             }
         }

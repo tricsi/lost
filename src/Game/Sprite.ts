@@ -4,12 +4,14 @@ namespace Game {
 
         img: HTMLImageElement;
         width: number;
-        loaded: boolean = false;
+        static load: number = 0;
+        static loaded: number = 0;
 
         constructor(src: string, width: number, callback: any = null) {
+            Sprite.load++;
             this.img = new Image();
             this.img.onload = () => {
-                this.loaded = true;
+                Sprite.loaded++;
                 if (callback) {
                     callback.call(this);
                 }
@@ -38,7 +40,6 @@ namespace Game {
             w: number,
             h: number,
             colors: number[][] = [],
-            callback: any = null,
             flipV: boolean = false,
             flipH: boolean = false
         ) {
@@ -73,7 +74,7 @@ namespace Game {
                 }
                 ctx.putImageData(imgData, 0, 0);
             }
-            const sprite = new Sprite(canvas.toDataURL(), this.width, callback);
+            const sprite = new Sprite(canvas.toDataURL(), this.width);
             canvas.width = width;
             canvas.height = height;
             return sprite;

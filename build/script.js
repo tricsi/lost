@@ -458,19 +458,17 @@ var Game;
 var Game;
 (function (Game) {
     class Enemy {
-        constructor(pos, speed, sprite, type = 0, color = 0) {
+        constructor(pos, speed, sprite, color = 0) {
             this.collided = new Game.Vec(0, 0);
             this.frame = 0;
             this.walk = false;
             this.box = new Game.Box(pos, 16, 16);
             this.speed = speed;
             this.sprite = sprite;
-            this.type = type;
             this.color = color;
         }
         render(ctx) {
-            let top = this.type + this.color * 2;
-            this.sprite.render(ctx, this.box, top, this.frame != 3 ? this.frame : 1);
+            this.sprite.render(ctx, this.box, this.color, this.frame != 3 ? this.frame : 1);
         }
         update(tick) {
             if (tick % 8 == 0) {
@@ -566,8 +564,11 @@ var Game;
             this.initPlatforms();
             this.initEnemies();
         }
+        ready() {
+            return Game.Sprite.load == Game.Sprite.loaded;
+        }
         initHero() {
-            const sprite = this.sprite.crop(this.ictx, 0, 0, 64, 48);
+            const sprite = this.sprite.crop(this.ictx, 0, 0, 64, 48, []);
             const jetSprite = this.sprite.crop(this.ictx, 64, 0, 48, 48, [[255, 204, 0]]);
             this.hero = new Game.Hero(96, 160, sprite, jetSprite);
         }
@@ -592,15 +593,15 @@ var Game;
         }
         initEnemies() {
             const speed = new Game.Vec(.5, -.5);
-            const sprite = this.sprite.crop(this.ictx, 0, 48, 48, 32, [
-                [255, 102, 102],
-                [255, 102, 255],
-                [102, 102, 255],
-                [102, 255, 255],
+            const sprite = this.sprite.crop(this.ictx, 0, 48, 48, 16, [
+                [255, 102, 102, 192],
+                [255, 102, 255, 192],
+                [102, 102, 255, 192],
+                [102, 255, 255, 192],
             ]);
             this.enemies = [];
             for (let i = 0; i < 4; i++) {
-                let enemy = new Game.Enemy(new Game.Vec(0, i * 40 + 20), speed.clone(), sprite, 0, i + 1);
+                let enemy = new Game.Enemy(new Game.Vec(0, i * 40 + 20), speed.clone(), sprite, i + 1);
                 this.enemies.push(enemy);
             }
         }
@@ -728,10 +729,10 @@ var Game;
 (function (Game) {
     class Sprite {
         constructor(src, width, callback = null) {
-            this.loaded = false;
+            Sprite.load++;
             this.img = new Image();
             this.img.onload = () => {
-                this.loaded = true;
+                Sprite.loaded++;
                 if (callback) {
                     callback.call(this);
                 }
@@ -747,7 +748,7 @@ var Game;
                 ctx.drawImage(this.img, w * frame, top, w, h, x - this.width, y, w, h);
             }
         }
-        crop(ctx, x, y, w, h, colors = [], callback = null, flipV = false, flipH = false) {
+        crop(ctx, x, y, w, h, colors = [], flipV = false, flipH = false) {
             let canvas = ctx.canvas, width = canvas.width, height = canvas.height, copies = colors.length;
             canvas.width = w;
             canvas.height = h * (copies + 1);
@@ -776,12 +777,14 @@ var Game;
                 }
                 ctx.putImageData(imgData, 0, 0);
             }
-            const sprite = new Sprite(canvas.toDataURL(), this.width, callback);
+            const sprite = new Sprite(canvas.toDataURL(), this.width);
             canvas.width = width;
             canvas.height = height;
             return sprite;
         }
     }
+    Sprite.load = 0;
+    Sprite.loaded = 0;
     Game.Sprite = Sprite;
 })(Game || (Game = {}));
 var Game;
@@ -843,16 +846,17 @@ var Game;
         requestAnimationFrame(() => {
             update();
         });
-        scene.update();
-        scene.render(ctx);
+        if (scene.ready()) {
+            scene.update();
+            scene.render(ctx);
+        }
     }
     on(window, 'load', () => {
         canvas = $('#game');
         ctx = canvas.getContext('2d');
-        const ictx = $('#test').getContext('2d');
         const src = 'data:image/png;base64,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';
-        const sprite = new Game.Sprite(src, canvas.width, function () {
-            scene = new Game.Scene(ictx, sprite);
+        const sprite = new Game.Sprite(src, canvas.width, () => {
+            scene = new Game.Scene($('#test').getContext('2d'), sprite);
             resize();
             bind();
             update();
