@@ -12,26 +12,55 @@ namespace Game {
         enemies: Enemy[];
         platforms: Platform[];
 
-        constructor(ictx: CanvasRenderingContext2D, img: HTMLImageElement) {
+        constructor(ictx: CanvasRenderingContext2D, sprite: Sprite) {
             this.ictx = ictx;
-            this.sprite = new Sprite(img, this.width);
-            this.hero = new Hero(96, 160, this.sprite.crop(ictx, 0, 0, 112, 48));
-            this.ship = new Ship(160, 136, this.sprite.crop(ictx, 0, 88, 48, 48));
+            this.sprite = sprite;
+            this.initHero();
+            this.initShip();
+            this.initPlatforms();
+            this.initEnemies();
+        }
+
+        initHero(): void {
+            const sprite = this.sprite.crop(this.ictx, 0, 0, 64, 48);
+            const jetSprite = this.sprite.crop(this.ictx, 64, 0, 48, 48, [[255, 204, 0]]);
+            this.hero = new Hero(96, 160, sprite, jetSprite);
+        }
+
+        initShip(): void {
+            const sprite = this.sprite.crop(this.ictx, 0, 88, 64, 48, [
+                [255, 102, 255],
+            ]);
+            this.ship = new Ship(160, 136, sprite);
+        }
+
+        initPlatforms(): void {
+            const sprite = this.sprite.crop(this.ictx, 0, 80, 24, 8, [
+                [0, 204, 0],
+                [255, 204, 0]
+            ]);
             this.platforms = [
-                new Platform(-50, 0, 350, 16),
-                new Platform(32, 72, 48, 8),
-                new Platform(120, 96, 32, 8),
-                new Platform(192, 48, 48, 8),
-                new Platform(-50, 184, 350, 8),
+                new Platform(-50, 0, 350, null),
+                new Platform(32, 72, 48, sprite, 1),
+                new Platform(120, 96, 32, sprite, 1),
+                new Platform(192, 48, 48, sprite, 1),
+                new Platform(-50, 184, 350, sprite, 2),
             ];
-            let sprite = this.sprite.crop(ictx, 0, 48, 48, 16),
-                speed = new Vec(.5, -.5);
-            this.enemies = [
-                new Enemy(new Vec(0, 20), speed.clone(), sprite),
-                new Enemy(new Vec(0, 60), speed.clone(), sprite),
-                new Enemy(new Vec(0, 100), speed.clone(), sprite),
-                new Enemy(new Vec(0, 140), speed.clone(), sprite),
-            ]
+        }
+
+        initEnemies(): void {
+            const speed = new Vec(.5, -.5);
+            const sprite = this.sprite.crop(this.ictx, 0, 48, 48, 32, [
+                [255, 102, 102],
+                [255, 102, 255],
+                [102, 102, 255],
+                [102, 255, 102],
+            ]);
+            this.enemies = [];
+            for (let i = 0; i < 4; i++) {
+                let enemy = new Enemy(new Vec(0, i * 40 + 20), speed.clone(), sprite, 0, i + 1);
+                this.enemies.push(enemy);
+            }
         }
 
         back(ctx: CanvasRenderingContext2D): void {
@@ -44,18 +73,9 @@ namespace Game {
             sky.addColorStop(1, "#224");
             ctx.fillStyle = sky;
             ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-            for (let i = 1; i < this.platforms.length; i++) {
-                let box = this.platforms[i].box.clone(),
-                    num = Math.round(box.w / 8) - 1;
-                box.w = 8;
-                this.sprite.render(ctx, box, 80, 0);
-                for (let j = 1; j < num; j++) {
-                    box.pos.x += box.w;
-                    this.sprite.render(ctx, box, 80, 1);
-                }
-                box.pos.x += box.w;
-                this.sprite.render(ctx, box, 80, 2);
-            }
+            this.platforms.forEach(platform => {
+                platform.render(ctx);
+            });
             this.cache = new Image();
             this.cache.src = ctx.canvas.toDataURL();
         }

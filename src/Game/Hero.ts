@@ -3,14 +3,17 @@ namespace Game {
     export class Hero implements Item {
         
         collided: Vec = new Vec(0, 0);
+        jetSprite: Sprite;
         sprite: Sprite;
         speed: Vec;
         box: Box;
         face: number = 0;
+        color: number = 0;
         walk: boolean = true;
         frame: number = 1;
 
-        constructor(x: number, y: number, sprite: Sprite) {
+        constructor(x: number, y: number, sprite: Sprite, jetSprite: Sprite) {
+            this.jetSprite = jetSprite;
             this.sprite = sprite;
             this.speed = new Vec(0, 1);
             this.box = new Box(new Vec(x, y), 16, 24);
@@ -18,7 +21,7 @@ namespace Game {
 
         render(ctx: CanvasRenderingContext2D): void  {
             let box = this.box,
-                top = this.face * box.h,
+                top = this.color * 2 + this.face,
                 frame = this.frame;
             if (this.walk) {
                 frame = frame < 3 ? frame : 1;
@@ -30,7 +33,7 @@ namespace Game {
 
         renderJet(ctx: CanvasRenderingContext2D): void {
             if (!this.walk) {
-                this.sprite.render(ctx, this.box, this.face * this.box.h, this.frame + 4);
+                this.jetSprite.render(ctx, this.box, this.face + 2, this.frame);
             }
         }
 

@@ -458,16 +458,19 @@ var Game;
 var Game;
 (function (Game) {
     class Enemy {
-        constructor(pos, speed, sprite) {
+        constructor(pos, speed, sprite, type = 0, color = 0) {
             this.collided = new Game.Vec(0, 0);
             this.frame = 0;
             this.walk = false;
             this.box = new Game.Box(pos, 16, 16);
             this.speed = speed;
             this.sprite = sprite;
+            this.type = type;
+            this.color = color;
         }
         render(ctx) {
-            this.sprite.render(ctx, this.box, 0, this.frame != 3 ? this.frame : 1);
+            let top = this.type + this.color * 2;
+            this.sprite.render(ctx, this.box, top, this.frame != 3 ? this.frame : 1);
         }
         update(tick) {
             if (tick % 8 == 0) {
@@ -486,17 +489,19 @@ var Game;
 var Game;
 (function (Game) {
     class Hero {
-        constructor(x, y, sprite) {
+        constructor(x, y, sprite, jetSprite) {
             this.collided = new Game.Vec(0, 0);
             this.face = 0;
+            this.color = 0;
             this.walk = true;
             this.frame = 1;
+            this.jetSprite = jetSprite;
             this.sprite = sprite;
             this.speed = new Game.Vec(0, 1);
             this.box = new Game.Box(new Game.Vec(x, y), 16, 24);
         }
         render(ctx) {
-            let box = this.box, top = this.face * box.h, frame = this.frame;
+            let box = this.box, top = this.color * 2 + this.face, frame = this.frame;
             if (this.walk) {
                 frame = frame < 3 ? frame : 1;
                 this.sprite.render(ctx, box, top, frame + 1);
@@ -507,7 +512,7 @@ var Game;
         }
         renderJet(ctx) {
             if (!this.walk) {
-                this.sprite.render(ctx, this.box, this.face * this.box.h, this.frame + 4);
+                this.jetSprite.render(ctx, this.box, this.face + 2, this.frame);
             }
         }
         update(tick) {
@@ -526,13 +531,24 @@ var Game;
 var Game;
 (function (Game) {
     class Platform {
-        constructor(x, y, width, height) {
-            this.box = new Game.Box(new Game.Vec(x, y), width, height);
+        constructor(x, y, width, sprite, color = 0) {
+            this.box = new Game.Box(new Game.Vec(x, y), width, 8);
+            this.sprite = sprite;
+            this.color = color;
         }
-        render(ctx, sprite) {
-            const box = this.box;
-            ctx.fillStyle = '#0ff';
-            ctx.fillRect(box.pos.x, box.pos.y, box.w, box.h);
+        render(ctx) {
+            if (!this.sprite) {
+                return;
+            }
+            let top = this.color, box = this.box.clone(), num = Math.round(box.w / 8) - 1;
+            box.w = 8;
+            this.sprite.render(ctx, box, top, 0);
+            for (let j = 1; j < num; j++) {
+                box.pos.x += box.w;
+                this.sprite.render(ctx, box, top, 1);
+            }
+            box.pos.x += box.w;
+            this.sprite.render(ctx, box, top, 2);
         }
     }
     Game.Platform = Platform;
@@ -540,27 +556,53 @@ var Game;
 var Game;
 (function (Game) {
     class Scene {
-        constructor(ictx, img) {
+        constructor(ictx, sprite) {
             this.tick = 0;
             this.width = 256;
             this.ictx = ictx;
-            this.sprite = new Game.Sprite(img, this.width);
-            this.hero = new Game.Hero(96, 160, this.sprite.crop(ictx, 0, 0, 112, 48));
-            this.ship = new Game.Ship(160, 136, this.sprite.crop(ictx, 0, 88, 48, 48));
+            this.sprite = sprite;
+            this.initHero();
+            this.initShip();
+            this.initPlatforms();
+            this.initEnemies();
+        }
+        initHero() {
+            const sprite = this.sprite.crop(this.ictx, 0, 0, 64, 48);
+            const jetSprite = this.sprite.crop(this.ictx, 64, 0, 48, 48, [[255, 204, 0]]);
+            this.hero = new Game.Hero(96, 160, sprite, jetSprite);
+        }
+        initShip() {
+            const sprite = this.sprite.crop(this.ictx, 0, 88, 64, 48, [
+                [255, 102, 255],
+            ]);
+            this.ship = new Game.Ship(160, 136, sprite);
+        }
+        initPlatforms() {
+            const sprite = this.sprite.crop(this.ictx, 0, 80, 24, 8, [
+                [0, 204, 0],
+                [255, 204, 0]
+            ]);
             this.platforms = [
-                new Game.Platform(-50, 0, 350, 16),
-                new Game.Platform(32, 72, 48, 8),
-                new Game.Platform(120, 96, 32, 8),
-                new Game.Platform(192, 48, 48, 8),
-                new Game.Platform(-50, 184, 350, 8),
+                new Game.Platform(-50, 0, 350, null),
+                new Game.Platform(32, 72, 48, sprite, 1),
+                new Game.Platform(120, 96, 32, sprite, 1),
+                new Game.Platform(192, 48, 48, sprite, 1),
+                new Game.Platform(-50, 184, 350, sprite, 2),
             ];
-            let sprite = this.sprite.crop(ictx, 0, 48, 48, 16), speed = new Game.Vec(.5, -.5);
-            this.enemies = [
-                new Game.Enemy(new Game.Vec(0, 20), speed.clone(), sprite),
-                new Game.Enemy(new Game.Vec(0, 60), speed.clone(), sprite),
-                new Game.Enemy(new Game.Vec(0, 100), speed.clone(), sprite),
-                new Game.Enemy(new Game.Vec(0, 140), speed.clone(), sprite),
-            ];
+        }
+        initEnemies() {
+            const speed = new Game.Vec(.5, -.5);
+            const sprite = this.sprite.crop(this.ictx, 0, 48, 48, 32, [
+                [255, 102, 102],
+                [255, 102, 255],
+                [102, 102, 255],
+                [102, 255, 102],
+            ]);
+            this.enemies = [];
+            for (let i = 0; i < 4; i++) {
+                let enemy = new Game.Enemy(new Game.Vec(0, i * 40 + 20), speed.clone(), sprite, 0, i + 1);
+                this.enemies.push(enemy);
+            }
         }
         back(ctx) {
             if (this.cache) {
@@ -572,17 +614,9 @@ var Game;
             sky.addColorStop(1, "#224");
             ctx.fillStyle = sky;
             ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-            for (let i = 1; i < this.platforms.length; i++) {
-                let box = this.platforms[i].box.clone(), num = Math.round(box.w / 8) - 1;
-                box.w = 8;
-                this.sprite.render(ctx, box, 80, 0);
-                for (let j = 1; j < num; j++) {
-                    box.pos.x += box.w;
-                    this.sprite.render(ctx, box, 80, 1);
-                }
-                box.pos.x += box.w;
-                this.sprite.render(ctx, box, 80, 2);
-            }
+            this.platforms.forEach(platform => {
+                platform.render(ctx);
+            });
             this.cache = new Image();
             this.cache.src = ctx.canvas.toDataURL();
         }
@@ -631,7 +665,7 @@ var Game;
             ctx.clearRect(x, y, w, h);
             b.render(ctx);
             let bd = ctx.getImageData(x, y, w, h);
-            let length = ad.data.length, resolution = 4 * 3;
+            let length = ad.data.length, resolution = 4 * 5;
             for (let j = 3; j < length; j += resolution) {
                 if (ad.data[j] && bd.data[j]) {
                     return true;
@@ -684,7 +718,7 @@ var Game;
         }
         render(ctx) {
             this.boxes.forEach((box, i) => {
-                this.sprite.render(ctx, box, box.h * i, 0);
+                this.sprite.render(ctx, box, i, 0);
             });
         }
     }
@@ -693,30 +727,59 @@ var Game;
 var Game;
 (function (Game) {
     class Sprite {
-        constructor(img, width) {
-            this.img = img;
+        constructor(src, width, callback = null) {
+            this.loaded = false;
+            this.img = new Image();
+            this.img.onload = () => {
+                this.loaded = true;
+                if (callback) {
+                    callback.call(this);
+                }
+            };
+            this.img.src = src;
             this.width = width;
         }
         render(ctx, box, top, frame) {
             let pos = box.pos, x = pos.x, y = pos.y, w = box.w, h = box.h;
+            top *= h;
             ctx.drawImage(this.img, w * frame, top, w, h, x, y, w, h);
             if (x + w > this.width) {
                 ctx.drawImage(this.img, w * frame, top, w, h, x - this.width, y, w, h);
             }
         }
-        crop(ctx, x, y, w, h, flipV = false, flipH = false) {
-            let img = new Image(), canvas = ctx.canvas, width = canvas.width, height = canvas.height;
+        crop(ctx, x, y, w, h, colors = [], callback = null, flipV = false, flipH = false) {
+            let canvas = ctx.canvas, width = canvas.width, height = canvas.height, copies = colors.length;
             canvas.width = w;
-            canvas.height = h;
+            canvas.height = h * (copies + 1);
             ctx.save();
             ctx.translate(flipV ? w : 0, flipH ? h : 0);
             ctx.scale(flipV ? -1 : 1, flipH ? -1 : 1);
-            ctx.drawImage(this.img, -x, -y);
+            ctx.drawImage(this.img, x, y, w, h, 0, 0, w, h);
             ctx.restore();
-            img.src = canvas.toDataURL();
+            if (copies > 0) {
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const length = imgData.data.length / (copies + 1);
+                for (let i = 0; i < length; i += 4) {
+                    if (!imgData.data[i + 3]) {
+                        continue;
+                    }
+                    for (let j = 0; j < 4; j++) {
+                        for (let k = 0; k < copies; k++) {
+                            let c = imgData.data[i + j];
+                            if (colors[k].length > j) {
+                                c -= 255 - colors[k][j];
+                            }
+                            let l = (k + 1) * length + i + j;
+                            imgData.data[l] = c > 0 ? c : 0;
+                        }
+                    }
+                }
+                ctx.putImageData(imgData, 0, 0);
+            }
+            const sprite = new Sprite(canvas.toDataURL(), this.width, callback);
             canvas.width = width;
             canvas.height = height;
-            return new Sprite(img, this.width);
+            return sprite;
         }
     }
     Game.Sprite = Sprite;
@@ -786,10 +849,14 @@ var Game;
     on(window, 'load', () => {
         canvas = $('#game');
         ctx = canvas.getContext('2d');
-        scene = new Game.Scene($('#test').getContext('2d'), $('#sprite'));
-        bind();
-        resize();
-        update();
+        const ictx = $('#test').getContext('2d');
+        const src = 'data:image/png;base64,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';
+        const sprite = new Game.Sprite(src, canvas.width, function () {
+            scene = new Game.Scene(ictx, sprite);
+            resize();
+            bind();
+            update();
+        });
     });
 })(Game || (Game = {}));
 

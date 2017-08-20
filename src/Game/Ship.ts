@@ -16,7 +16,7 @@ namespace Game {
         
         render(ctx: CanvasRenderingContext2D): void  {
             this.boxes.forEach((box, i) => {
-                this.sprite.render(ctx, box, box.h * i, 0);
+                this.sprite.render(ctx, box, i, 0);
             });
         }
 
