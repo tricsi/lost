@@ -8,7 +8,7 @@
         "outFile": "./script.js"
     },
     "include": [
-        "./node_modules/jsfxr/jsfxr.js",
+        "src/jsfxr.js",
         "src/Game/*.ts",
         "src/script.ts"
     ]

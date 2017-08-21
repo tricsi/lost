@@ -8,17 +8,25 @@ namespace Game {
         hero: Hero;
         ship: Ship;
         width: number = 256;
+        bumms: Bumm[] = [];
+        bummSprite: Sprite;
         cache: HTMLImageElement;
         enemies: Enemy[];
         platforms: Platform[];
+        jetSfx: Sfx;
+        bummSfx: Sfx;
+        jetSound: AudioBufferSourceNode = null;
 
         constructor(ictx: CanvasRenderingContext2D, sprite: Sprite) {
             this.ictx = ictx;
             this.sprite = sprite;
+            this.bummSprite = sprite.crop(ictx, 0, 136, 48, 16, [[255, 255, 102, 192]]);
             this.initHero();
             this.initShip();
             this.initPlatforms();
             this.initEnemies();
+            this.bummSfx = new Sfx([3,,.38,.47,.29,.09,,,,,,,,,,.55,.34,-.13,1,,,,,.5]);
+            this.jetSfx = new Sfx([3,,1,,.08,.61,,.76,.12,,-.96,-.14,.29,.34,-.91,,-.26,.01,.63,0,.18,,,.5]);
         }
 
         ready() {
@@ -92,18 +100,43 @@ namespace Game {
             this.enemies.forEach(enemy => {
                 enemy.render(ctx);
             });
+            this.bumms.forEach(bumm => {
+                bumm.render(ctx);
+            });
         }
 
         update(): void {
             let hero = this.hero;
             hero.update(this.tick);
             this.move(hero);
-            for (let i = 0; i < this.enemies.length; i++) {
+            if (hero.walk && this.jetSound) {
+                this.jetSound.stop();
+                this.jetSound = null;
+            }
+            if (!hero.walk && !this.jetSound) {
+                this.jetSound = this.jetSfx.play(.5, true);
+            }
+            let i = 0;
+            while (i < this.enemies.length) {
                 let enemy = this.enemies[i];
                 enemy.update(this.tick);
                 this.move(enemy);
                 if (this.collide(hero, enemy)) {
                     this.enemies.splice(i, 1);
+                    this.bumms.push(new Bumm(enemy.box.pos.clone(), this.bummSprite));
+                    this.bummSfx.play();
+                } else {
+                    i++;
+                }
+            }
+            i = 0;
+            while (i < this.bumms.length) {
+                let bumm = this.bumms[i];
+                bumm.update(this.tick);
+                if (bumm.end) {
+                    this.bumms.splice(i, 1);
+                } else {
+                    i++;
                 }
             }
             this.tick++;

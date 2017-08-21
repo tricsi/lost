@@ -1,1 +1,1 @@
-declare function jsfxr(config: number[]): string;
+declare function jsfxr(config: number[]): ArrayBuffer;

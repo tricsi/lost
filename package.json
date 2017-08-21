@@ -22,9 +22,6 @@
     "postcss-cssnext": "^2.9.0",
     "typescript": "^2.4.2"
   },
-  "dependencies": {
-    "jsfxr": "^0.0.1"
-  },
   "postcss": {
     "plugins": {
       "postcss-cssnext": {}

@@ -5,7 +5,7 @@ namespace Game {
         collided: Vec = new Vec(0, 0);
         jetSprite: Sprite;
         sprite: Sprite;
-        speed: Vec;
+        speed: Vec = new Vec(0, 1);
         box: Box;
         face: number = 0;
         color: number = 0;
@@ -15,7 +15,6 @@ namespace Game {
         constructor(x: number, y: number, sprite: Sprite, jetSprite: Sprite) {
             this.jetSprite = jetSprite;
             this.sprite = sprite;
-            this.speed = new Vec(0, 1);
             this.box = new Box(new Vec(x, y), 16, 24);
         }
 
