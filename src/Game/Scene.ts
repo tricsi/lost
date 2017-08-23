@@ -19,7 +19,6 @@ namespace Game {
             this.ship = new Ship(160, 136);
             this.initPlatforms();
             this.initEnemies();
-            this.hero.shot();
         }
 
         ready() {
@@ -76,6 +75,13 @@ namespace Game {
         }
 
         update(): void {
+            this.updateHero();
+            this.updateEnemies();
+            this.updateBumms();
+            this.tick++;
+        }
+
+        updateHero() {
             let hero = this.hero;
             this.move(hero);
             hero.update(this.tick);
@@ -87,11 +93,25 @@ namespace Game {
                 this.jetSound = Hero.jetSfx.play(.5, true);
             }
             let i = 0;
+            while (i < hero.lasers.length) {
+                let laser = hero.lasers[i];
+                this.move(laser);
+                laser.update(this.tick);
+                if (laser.end) {
+                    hero.lasers.splice(i, 1);
+                } else {
+                    i++;
+                }
+            }           
+        }
+
+        updateEnemies() {
+            let i = 0;
             while (i < this.enemies.length) {
                 let enemy = this.enemies[i];
-                enemy.update(this.tick);
                 this.move(enemy);
-                if (this.collide(hero, enemy)) {
+                enemy.update(this.tick);
+                if (this.collide(this.hero, enemy)) {
                     this.enemies.splice(i, 1);
                     this.bumms.push(new Bumm(enemy.box.pos.clone()));
                     Bumm.sfx.play();
@@ -99,7 +119,10 @@ namespace Game {
                     i++;
                 }
             }
-            i = 0;
+        }
+
+        updateBumms() {
+            let i = 0;
             while (i < this.bumms.length) {
                 let bumm = this.bumms[i];
                 bumm.update(this.tick);
@@ -109,7 +132,6 @@ namespace Game {
                     i++;
                 }
             }
-            this.tick++;
         }
 
         collide(a: Item, b: Item): boolean {

@@ -42,6 +42,7 @@ namespace Game {
         update(tick: number) {
             this.walk = this.collided.y && this.speed.y > 0;
             if (tick % 8 == 0) {
+                this.shot();
                 if (!this.walk) {
                     this.frame = ++this.frame % 3;
                 } else if (this.speed.x != 0) {
