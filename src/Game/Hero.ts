@@ -2,19 +2,19 @@ namespace Game {
 
     export class Hero implements Item {
         
+        static jetSprite: Sprite;
+        static jetSfx: Sfx;
+        static sprite: Sprite;
         collided: Vec = new Vec(0, 0);
-        jetSprite: Sprite;
-        sprite: Sprite;
         speed: Vec = new Vec(0, 1);
         box: Box;
         face: number = 0;
         color: number = 0;
         walk: boolean = true;
         frame: number = 1;
+        lasers: Laser[] = [];
 
-        constructor(x: number, y: number, sprite: Sprite, jetSprite: Sprite) {
-            this.jetSprite = jetSprite;
-            this.sprite = sprite;
+        constructor(x: number, y: number) {
             this.box = new Box(new Vec(x, y), 16, 24);
         }
 
@@ -24,19 +24,23 @@ namespace Game {
                 frame = this.frame;
             if (this.walk) {
                 frame = frame < 3 ? frame : 1;
-                this.sprite.render(ctx, box, top, frame + 1);
+                Hero.sprite.render(ctx, box, top, frame + 1);
             } else {
-                this.sprite.render(ctx, box, top, 0);
+                Hero.sprite.render(ctx, box, top, 0);
             }
+            this.lasers.forEach(laser => {
+                laser.render(ctx);
+            });
         }
 
         renderJet(ctx: CanvasRenderingContext2D): void {
             if (!this.walk) {
-                this.jetSprite.render(ctx, this.box, this.face + 2, this.frame);
+                Hero.jetSprite.render(ctx, this.box, this.face + 2, this.frame);
             }
         }
 
         update(tick: number) {
+            this.walk = this.collided.y && this.speed.y > 0;
             if (tick % 8 == 0) {
                 if (!this.walk) {
                     this.frame = ++this.frame % 3;
@@ -44,6 +48,10 @@ namespace Game {
                     this.frame = ++this.frame % 4;
                 }
             }
+        }
+
+        shot() {
+            this.lasers.push(new Laser(this));
         }
 
     }

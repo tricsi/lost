@@ -3,11 +3,12 @@ namespace Game {
     export class Sprite {
 
         img: HTMLImageElement;
+        ictx: CanvasRenderingContext2D;
         width: number;
         static load: number = 0;
         static loaded: number = 0;
 
-        constructor(src: string, width: number, callback: any = null) {
+        constructor(ictx: CanvasRenderingContext2D, src: string, width: number, callback: any = null) {
             Sprite.load++;
             this.img = new Image();
             this.img.onload = () => {
@@ -17,6 +18,7 @@ namespace Game {
                 }
             };
             this.img.src = src;
+            this.ictx = ictx;
             this.width = width;
         }
 
@@ -34,7 +36,6 @@ namespace Game {
         }
 
         crop(
-            ctx: CanvasRenderingContext2D,
             x: number,
             y: number,
             w: number,
@@ -43,7 +44,8 @@ namespace Game {
             flipV: boolean = false,
             flipH: boolean = false
         ) {
-            let canvas = ctx.canvas,
+            let ctx = this.ictx,
+                canvas = ctx.canvas,
                 width = canvas.width,
                 height = canvas.height,
                 copies = colors.length;
@@ -74,7 +76,7 @@ namespace Game {
                 }
                 ctx.putImageData(imgData, 0, 0);
             }
-            const sprite = new Sprite(canvas.toDataURL(), this.width);
+            const sprite = new Sprite(ctx, canvas.toDataURL(), this.width);
             canvas.width = width;
             canvas.height = height;
             return sprite;

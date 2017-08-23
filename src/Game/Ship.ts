@@ -2,11 +2,10 @@ namespace Game {
 
     export class Ship {
 
-        sprite: Sprite;
+        static sprite: Sprite;
         boxes: Box[];
 
-        constructor(x, y, sprite: Sprite) {
-            this.sprite = sprite;
+        constructor(x, y) {
             this.boxes = [
                 new Box(new Vec(x, y), 16, 16),
                 new Box(new Vec(x, y + 16), 16, 16),
@@ -16,7 +15,7 @@ namespace Game {
         
         render(ctx: CanvasRenderingContext2D): void  {
             this.boxes.forEach((box, i) => {
-                this.sprite.render(ctx, box, i, 0);
+                Ship.sprite.render(ctx, box, i, 0);
             });
         }
 

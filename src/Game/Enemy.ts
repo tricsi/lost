@@ -2,23 +2,21 @@ namespace Game {
 
     export class Enemy implements Item {
 
+        static sprite: Sprite;
         collided: Vec = new Vec(0, 0);
-        sprite: Sprite;
         speed: Vec;
         color: number;
         frame: number = 0;
-        walk: boolean = false;
         box: Box;
 
-        constructor(pos: Vec, speed: Vec, sprite: Sprite, color: number = 0) {
+        constructor(pos: Vec, speed: Vec, color: number = 0) {
             this.box = new Box(pos, 16, 16);
             this.speed = speed;
-            this.sprite = sprite;
             this.color = color;
         }
 
         render(ctx: CanvasRenderingContext2D): void  {
-            this.sprite.render(ctx, this.box, this.color, this.frame != 3 ? this.frame : 1);
+            Enemy.sprite.render(ctx, this.box, this.color, this.frame != 3 ? this.frame : 1);
         }
 
         update(tick: number): void {

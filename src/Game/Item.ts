@@ -4,8 +4,6 @@ namespace Game {
 
         collided: Vec;
         speed: Vec;
-        frame: number;
-        walk: boolean;
         box: Box;
 
         render(ctx: CanvasRenderingContext2D): void;

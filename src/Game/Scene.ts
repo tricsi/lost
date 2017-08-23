@@ -2,75 +2,45 @@ namespace Game {
 
     export class Scene {
 
-        ictx: CanvasRenderingContext2D;
         sprite: Sprite;
         tick: number = 0;
         hero: Hero;
         ship: Ship;
         width: number = 256;
         bumms: Bumm[] = [];
-        bummSprite: Sprite;
         cache: HTMLImageElement;
         enemies: Enemy[];
         platforms: Platform[];
-        jetSfx: Sfx;
-        bummSfx: Sfx;
         jetSound: AudioBufferSourceNode = null;
 
-        constructor(ictx: CanvasRenderingContext2D, sprite: Sprite) {
-            this.ictx = ictx;
+        constructor(sprite: Sprite) {
             this.sprite = sprite;
-            this.bummSprite = sprite.crop(ictx, 0, 136, 48, 16, [[255, 255, 102, 192]]);
-            this.initHero();
-            this.initShip();
+            this.hero = new Hero(96, 160);
+            this.ship = new Ship(160, 136);
             this.initPlatforms();
             this.initEnemies();
-            this.bummSfx = new Sfx([3,,.38,.47,.29,.09,,,,,,,,,,.55,.34,-.13,1,,,,,.5]);
-            this.jetSfx = new Sfx([3,,1,,.08,.61,,.76,.12,,-.96,-.14,.29,.34,-.91,,-.26,.01,.63,0,.18,,,.5]);
+            this.hero.shot();
         }
 
         ready() {
             return Sprite.load == Sprite.loaded;
         }
 
-        initHero(): void {
-            const sprite = this.sprite.crop(this.ictx, 0, 0, 64, 48, []);
-            const jetSprite = this.sprite.crop(this.ictx, 64, 0, 48, 48, [[255, 204, 0]]);
-            this.hero = new Hero(96, 160, sprite, jetSprite);
-        }
-
-        initShip(): void {
-            const sprite = this.sprite.crop(this.ictx, 0, 88, 64, 48, [
-                [255, 102, 255],
-            ]);
-            this.ship = new Ship(160, 136, sprite);
-        }
-
         initPlatforms(): void {
-            const sprite = this.sprite.crop(this.ictx, 0, 80, 24, 8, [
-                [0, 204, 0],
-                [255, 204, 0]
-            ]);
             this.platforms = [
-                new Platform(-50, 0, 350, null),
-                new Platform(32, 72, 48, sprite, 1),
-                new Platform(120, 96, 32, sprite, 1),
-                new Platform(192, 48, 48, sprite, 1),
-                new Platform(-50, 184, 350, sprite, 2),
+                new Platform(-50, 0, 350, -1),
+                new Platform(32, 72, 48, 1),
+                new Platform(120, 96, 32, 1),
+                new Platform(192, 48, 48, 1),
+                new Platform(-50, 184, 350, 2),
             ];
         }
 
         initEnemies(): void {
             const speed = new Vec(.5, -.5);
-            const sprite = this.sprite.crop(this.ictx, 0, 48, 48, 16, [
-                [255, 102, 102, 192],
-                [255, 102, 255, 192],
-                [102, 102, 255, 192],
-                [102, 255, 255, 192],
-            ]);
             this.enemies = [];
             for (let i = 0; i < 4; i++) {
-                let enemy = new Enemy(new Vec(0, i * 40 + 20), speed.clone(), sprite, i + 1);
+                let enemy = new Enemy(new Vec(0, i * 40 + 20), speed.clone(), i + 1);
                 this.enemies.push(enemy);
             }
         }
@@ -107,14 +77,14 @@ namespace Game {
 
         update(): void {
             let hero = this.hero;
-            hero.update(this.tick);
             this.move(hero);
+            hero.update(this.tick);
             if (hero.walk && this.jetSound) {
                 this.jetSound.stop();
                 this.jetSound = null;
             }
             if (!hero.walk && !this.jetSound) {
-                this.jetSound = this.jetSfx.play(.5, true);
+                this.jetSound = Hero.jetSfx.play(.5, true);
             }
             let i = 0;
             while (i < this.enemies.length) {
@@ -123,8 +93,8 @@ namespace Game {
                 this.move(enemy);
                 if (this.collide(hero, enemy)) {
                     this.enemies.splice(i, 1);
-                    this.bumms.push(new Bumm(enemy.box.pos.clone(), this.bummSprite));
-                    this.bummSfx.play();
+                    this.bumms.push(new Bumm(enemy.box.pos.clone()));
+                    Bumm.sfx.play();
                 } else {
                     i++;
                 }
@@ -143,7 +113,7 @@ namespace Game {
         }
 
         collide(a: Item, b: Item): boolean {
-            let ctx = this.ictx,
+            let ctx = this.sprite.ictx,
                 width = this.width,
                 ab = a.box.clone(),
                 bb = b.box.clone(),
@@ -189,8 +159,7 @@ namespace Game {
             let collided = item.collided,
                 speed = item.speed,
                 pos = item.box.pos,
-                old = pos.clone(),
-                walk = false;
+                old = pos.clone();
             pos.x += speed.x;
             if (pos.x > this.width) {
                 pos.x -= this.width;
@@ -210,12 +179,8 @@ namespace Game {
                 if (platform.box.test(item.box)) {
                     pos.y = old.y;
                     collided.y = 1;
-                    if (speed.y > 0) {
-                        walk = true;
-                    }
                 }
             });
-            item.walk = walk;
         }
 
     }
