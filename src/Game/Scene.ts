@@ -95,8 +95,8 @@ namespace Game {
             let i = 0;
             while (i < hero.lasers.length) {
                 let laser = hero.lasers[i];
-                this.move(laser);
                 laser.update(this.tick);
+                this.moveLaser(laser);
                 if (laser.end) {
                     hero.lasers.splice(i, 1);
                 } else {
@@ -106,19 +106,11 @@ namespace Game {
         }
 
         updateEnemies() {
-            let i = 0;
-            while (i < this.enemies.length) {
-                let enemy = this.enemies[i];
+            let hero = this.hero;
+            this.enemies.forEach(enemy => {
                 this.move(enemy);
                 enemy.update(this.tick);
-                if (this.collide(this.hero, enemy)) {
-                    this.enemies.splice(i, 1);
-                    this.bumms.push(new Bumm(enemy.box.pos.clone()));
-                    Bumm.sfx.play();
-                } else {
-                    i++;
-                }
-            }
+            });
         }
 
         updateBumms() {
@@ -175,6 +167,26 @@ namespace Game {
                 }
             }
             return false;
+        }
+
+        moveLaser(item: Laser) {
+            let pos = item.box.pos;
+            pos.x += item.speed.x;
+            if (pos.x > this.width) {
+                pos.x -= this.width;
+            } else if (pos.x < 0) {
+                pos.x += this.width;
+            }
+            let i = 0;
+            while (i < this.enemies.length) {
+                let enemy = this.enemies[i];
+                if (this.collide(item, enemy)) {
+                    this.enemies.splice(i, 1);
+                    this.bumms.push(new Bumm(enemy.box.pos.clone(), 1, true));
+                } else {
+                    i++;
+                }
+            }
         }
 
         move(item: Item) {

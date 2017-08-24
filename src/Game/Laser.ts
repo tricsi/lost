@@ -6,29 +6,29 @@ namespace Game {
         static sprite2: Sprite;
         static sfx: Sfx;
         collided: Vec = new Vec(0, 0);
-        speed: Vec = new Vec(-8, 0);
+        speed: Vec = new Vec(-6, 0);
         box: Box;
         end: boolean = false;
-        add: number = 6;
+        add: number = 5;
         width: number = 112;
         color: number;
         face: number;
+        tick: number = 15;
 
         constructor(hero: Hero) {
             let box = hero.box.clone(),
-                pos = box.pos,
-                w = 80;
+                pos = box.pos;
             if (hero.face) {
                 this.speed.x = -this.speed.x;
                 pos.x += box.w;
             } else {
-                pos.x -= w;
+                pos.x -= this.add;
             }
             pos.y += 12;
             box.h = 1;
-            box.w = w;
+            box.w = this.add;
             this.box = box;
-            this.color = Math.round(Math.random() * 3) + 1;
+            this.color = Math.round(Math.random() * 2) + 1;
             this.face = hero.face;
             Laser.sfx.play(.5);
         }
@@ -44,15 +44,13 @@ namespace Game {
 
         update(tick: number): void {
             let box = this.box,
-                pos = box.pos;
-            box.w += this.add;
-            if (this.speed.x < 0 && this.add < 0) {
-                pos.x -= this.add;
+                pos = box.pos,
+                add = --this.tick < 0 ? -this.add : this.add;
+            box.w += add;
+            if (this.face) {
+                pos.x -= add;
             }
-            if (box.w >= this.width) {
-                this.add = -this.add;
-            }
-            this.end = box.w <= 1;
+            this.end = box.w <= this.add;
         }
 
     }
