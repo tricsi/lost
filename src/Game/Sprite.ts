@@ -2,11 +2,12 @@ namespace Game {
 
     export class Sprite {
 
+        static load: number = 0;
+        static loaded: number = 0;
+
         img: HTMLImageElement;
         ictx: CanvasRenderingContext2D;
         width: number;
-        static load: number = 0;
-        static loaded: number = 0;
 
         constructor(ictx: CanvasRenderingContext2D, src: string, width: number, callback: any = null) {
             Sprite.load++;
@@ -36,20 +37,20 @@ namespace Game {
             }
         }
 
-        crop(
-            x: number,
-            y: number,
-            w: number,
-            h: number,
-            colors: number[][] = [],
-            flipV: boolean = false,
-            flipH: boolean = false
-        ) {
+        crop(x: number, y: number, w: number, h: number, colors: string[] = [], flipV: boolean = false, flipH: boolean = false): Sprite {
             let ctx = this.ictx,
                 canvas = ctx.canvas,
                 width = canvas.width,
                 height = canvas.height,
-                copies = colors.length;
+                copies = colors.length,
+                rgba: number[][] = colors.map(code => {
+                    const value = [0, 0, 0, 0];
+                    for (let i = 0; i < code.length; i++) {
+                        let dec = parseInt(code.substr(i, 1), 16);
+                        value[i] = dec * 16 + dec;
+                    }
+                    return value;
+                });
             canvas.width = w;
             canvas.height = h * (copies + 1);
             ctx.save();
@@ -68,7 +69,7 @@ namespace Game {
                         for (let k = 0; k < copies; k++) {
                             let c = imgData.data[i + j];
                             if (colors[k].length > j) {
-                                c -= 255 - colors[k][j];
+                                c -= 255 - rgba[k][j];
                             }
                             let l = (k + 1) * length + i + j;
                             imgData.data[l] = c > 0 ? c : 0;
