@@ -2,7 +2,9 @@ namespace Game {
 
     export class Laser implements Item {
 
-        static sprite: Sprite;
+        static sprite1: Sprite;
+        static sprite2: Sprite;
+        static sfx: Sfx;
         collided: Vec = new Vec(0, 0);
         speed: Vec = new Vec(-8, 0);
         box: Box;
@@ -10,6 +12,7 @@ namespace Game {
         add: number = 6;
         width: number = 112;
         color: number;
+        face: number;
 
         constructor(hero: Hero) {
             let box = hero.box.clone(),
@@ -26,10 +29,17 @@ namespace Game {
             box.w = w;
             this.box = box;
             this.color = Math.round(Math.random() * 3) + 1;
+            this.face = hero.face;
+            Laser.sfx.play(.5);
         }
 
         render(ctx: CanvasRenderingContext2D): void {
-            Laser.sprite.render(ctx, this.box, this.color, 0);
+            const box = this.box;
+            if (this.face) {
+                Laser.sprite2.render(ctx, box, this.color, 0, this.width - box.w);
+            } else {
+                Laser.sprite1.render(ctx, box, this.color, 0);
+            }
         }
 
         update(tick: number): void {

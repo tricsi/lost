@@ -25,7 +25,9 @@ namespace Game {
         const hero = scene.hero;
         on(document, 'keydown', (e: KeyboardEvent) => {
             let key = e.keyCode;
-            if (key == 38 || key == 87 || key == 119) {
+            if (key == 32) {
+                hero.shoot = true;
+            } else if (key == 38 || key == 87 || key == 119) {
                 hero.speed.y = -1;
             } else if (key == 37 || key == 65 || key == 97) {
                 hero.speed.x = -1;
@@ -37,7 +39,9 @@ namespace Game {
         });
         on(document, 'keyup', (e: KeyboardEvent) => {
             let key = e.keyCode;
-            if (key == 38 || key == 87 || key == 119 || key == 40 || key == 83 || key == 115) {
+            if (key == 32) {
+                hero.shoot = false;
+            } else if (key == 38 || key == 87 || key == 119 || key == 40 || key == 83 || key == 115) {
                 hero.speed.y = 1;
             } else if (key == 37 || key == 65 || key == 97 || key == 39 || key == 68 || key == 100) {
                 hero.speed.x = 0;
@@ -72,14 +76,20 @@ namespace Game {
                 [102, 102, 255],
                 [102, 255, 255],
             ]);
-            Laser.sprite = sprite.crop(0, 180, 112, 1, [
+            Laser.sprite1 = sprite.crop(0, 180, 112, 1, [
                 [255, 102, 244],
                 [255, 102, 102],
                 [102, 255, 255],
             ]);
+            Laser.sprite2 = sprite.crop(0, 180, 112, 1, [
+                [255, 102, 244],
+                [255, 102, 102],
+                [102, 255, 255],
+            ], true);
             Ship.sprite = sprite.crop(0, 88, 64, 48, [[255, 102, 255]]);
             Hero.jetSfx = new Sfx([3,,1,,,.61,,1,1,,,-1,,,-1,,-.76,-.02,.456,0,.18,,-1,.5]);
             Bumm.sfx = new Sfx([3,,.38,.47,.29,.09,,,,,,,,,,.55,.34,-.13,1,,,,,.5]);
+            Laser.sfx = new Sfx([0,,.12,,.16,.3,.2,-.17,,,,,,.55,-.45,,,,1,,,,,.5]);
             scene = new Scene(sprite);
             resize();
             bind();

@@ -90,7 +90,7 @@ namespace Game {
                 this.jetSound = null;
             }
             if (!hero.walk && !this.jetSound) {
-                this.jetSound = Hero.jetSfx.play(.5, true);
+                this.jetSound = Hero.jetSfx.play(.1, true);
             }
             let i = 0;
             while (i < hero.lasers.length) {

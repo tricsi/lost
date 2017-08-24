@@ -22,16 +22,17 @@ namespace Game {
             this.width = width;
         }
 
-        render(ctx: CanvasRenderingContext2D, box: Box, top:number, frame: number): void {
+        render(ctx: CanvasRenderingContext2D, box: Box, top:number, frame: number, left: number = 0): void {
             let pos = box.pos,
                 x = pos.x,
                 y = pos.y,
                 w = box.w,
                 h = box.h;
             top *= h;
-            ctx.drawImage(this.img, w * frame, top, w, h, x, y, w, h);
+            left += w * frame;
+            ctx.drawImage(this.img, left, top, w, h, x, y, w, h);
             if (x + w > this.width) {
-                ctx.drawImage(this.img, w * frame, top, w, h, x - this.width, y, w, h);
+                ctx.drawImage(this.img, left, top, w, h, x - this.width, y, w, h);
             }
         }
 
