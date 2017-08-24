@@ -4,12 +4,13 @@ namespace Game {
 
         static sprite: Sprite;
         static sfx: Sfx;
+        tick: number = 0;
         frame: number = 0;
         color: number;
         box: Box;
         end: boolean = false;
 
-        constructor(pos: Vec, color: number = 0, sfx: boolean = false) {
+        constructor(pos: Vec, color: number, sfx: boolean) {
             this.color = color;
             this.box = new Box(pos, 16, 16);
             if (sfx) {
@@ -23,8 +24,8 @@ namespace Game {
             }
         }
 
-        update(tick: number): void {
-            if (tick % 4 == 0) {
+        update(scene: Scene): void {
+            if (this.tick++ % 4 == 0) {
                 this.end = ++this.frame > 2;
             }
         }

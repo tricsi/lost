@@ -7,7 +7,7 @@ namespace Game {
         box: Box;
 
         render(ctx: CanvasRenderingContext2D): void;
-        update(tick: number): void;
+        update(scene: Scene): void;
     }
 
 }

@@ -14,7 +14,8 @@ namespace Game {
         shoot: boolean = false;
         frame: number = 1;
         lasers: Laser[] = [];
-
+        jetSound: AudioBufferSourceNode = null;
+        
         constructor(x: number, y: number) {
             this.box = new Box(new Vec(x, y), 16, 24);
         }
@@ -40,9 +41,11 @@ namespace Game {
             }
         }
 
-        update(tick: number) {
+        update(scene: Scene) {
+            scene.move(this);
+
             this.walk = this.collided.y && this.speed.y > 0;
-            if (tick % 8 == 0) {
+            if (scene.tick % 8 == 0) {
                 if (this.shoot) {
                     this.shot();
                 }
@@ -50,6 +53,25 @@ namespace Game {
                     this.frame = ++this.frame % 3;
                 } else if (this.speed.x != 0) {
                     this.frame = ++this.frame % 4;
+                }
+            }
+
+            if (this.walk && this.jetSound) {
+                this.jetSound.stop();
+                this.jetSound = null;
+            }
+            if (!this.walk && !this.jetSound) {
+                this.jetSound = Hero.jetSfx.play(.1, true);
+            }
+
+            let i = 0;
+            while (i < this.lasers.length) {
+                let laser = this.lasers[i];
+                laser.update(scene);
+                if (laser.end) {
+                    this.lasers.splice(i, 1);
+                } else {
+                    i++;
                 }
             }
         }

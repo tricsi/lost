@@ -42,15 +42,35 @@ namespace Game {
             }
         }
 
-        update(tick: number): void {
+        update(scene: Scene): void {
             let box = this.box,
                 pos = box.pos,
                 add = --this.tick < 0 ? -this.add : this.add;
+
+            pos.x += this.speed.x;
+            if (pos.x > scene.width) {
+                pos.x -= scene.width;
+            } else if (pos.x < 0) {
+                pos.x += scene.width;
+            }
+
             box.w += add;
             if (this.face) {
                 pos.x -= add;
             }
             this.end = box.w <= this.add;
+
+            let i = 0,
+                items = scene.enemies.items;
+            while (!this.end && i < items.length) {
+                let enemy = items[i];
+                if (scene.collide(this, enemy)) {
+                    items.splice(i, 1);
+                    scene.addBumm(enemy.box.pos.clone(), 1, true);
+                } else {
+                    i++;
+                }
+            }
         }
 
     }

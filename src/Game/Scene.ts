@@ -9,16 +9,21 @@ namespace Game {
         width: number = 256;
         bumms: Bumm[] = [];
         cache: HTMLImageElement;
-        enemies: Enemy[];
+        enemies: Enemies;
         platforms: Platform[];
-        jetSound: AudioBufferSourceNode = null;
 
         constructor(sprite: Sprite) {
             this.sprite = sprite;
             this.hero = new Hero(96, 160);
             this.ship = new Ship(160, 136);
+            this.enemies = new Enemies(64, 4, (index: number) => {
+                return new Enemy(
+                    new Vec(0, Math.round(Math.random() * 136) + 32),
+                    new Vec(.5, Math.random() > .5 ? .5 : -.5),
+                    Math.round(index % 4) + 1
+                );
+            });
             this.initPlatforms();
-            this.initEnemies();
         }
 
         ready() {
@@ -33,15 +38,6 @@ namespace Game {
                 new Platform(192, 48, 48, 1),
                 new Platform(-50, 184, 350, 2),
             ];
-        }
-
-        initEnemies(): void {
-            const speed = new Vec(.5, -.5);
-            this.enemies = [];
-            for (let i = 0; i < 4; i++) {
-                let enemy = new Enemy(new Vec(0, i * 40 + 20), speed.clone(), i + 1);
-                this.enemies.push(enemy);
-            }
         }
 
         back(ctx: CanvasRenderingContext2D): void {
@@ -66,9 +62,7 @@ namespace Game {
             this.ship.render(ctx);
             this.hero.render(ctx);
             this.hero.renderJet(ctx);
-            this.enemies.forEach(enemy => {
-                enemy.render(ctx);
-            });
+            this.enemies.render(ctx);
             this.bumms.forEach(bumm => {
                 bumm.render(ctx);
             });
@@ -91,49 +85,21 @@ namespace Game {
         }
 
         update(): void {
-            this.updateHero();
-            this.updateEnemies();
+            this.hero.update(this);
+            this.enemies.update(this);
             this.updateBumms();
             this.tick++;
         }
 
-        updateHero() {
-            let hero = this.hero;
-            this.move(hero);
-            hero.update(this.tick);
-            if (hero.walk && this.jetSound) {
-                this.jetSound.stop();
-                this.jetSound = null;
-            }
-            if (!hero.walk && !this.jetSound) {
-                this.jetSound = Hero.jetSfx.play(.1, true);
-            }
-            let i = 0;
-            while (i < hero.lasers.length) {
-                let laser = hero.lasers[i];
-                laser.update(this.tick);
-                this.moveLaser(laser);
-                if (laser.end) {
-                    hero.lasers.splice(i, 1);
-                } else {
-                    i++;
-                }
-            }           
-        }
-
-        updateEnemies() {
-            let hero = this.hero;
-            this.enemies.forEach(enemy => {
-                this.move(enemy);
-                enemy.update(this.tick);
-            });
+        addBumm(pos: Vec, color: number = 0, sfx: boolean = false) {
+            this.bumms.push(new Bumm(pos, color, sfx));
         }
 
         updateBumms() {
             let i = 0;
             while (i < this.bumms.length) {
                 let bumm = this.bumms[i];
-                bumm.update(this.tick);
+                bumm.update(this);
                 if (bumm.end) {
                     this.bumms.splice(i, 1);
                 } else {
@@ -183,26 +149,6 @@ namespace Game {
                 }
             }
             return false;
-        }
-
-        moveLaser(item: Laser) {
-            let pos = item.box.pos;
-            pos.x += item.speed.x;
-            if (pos.x > this.width) {
-                pos.x -= this.width;
-            } else if (pos.x < 0) {
-                pos.x += this.width;
-            }
-            let i = 0;
-            while (i < this.enemies.length) {
-                let enemy = this.enemies[i];
-                if (this.collide(item, enemy)) {
-                    this.enemies.splice(i, 1);
-                    this.bumms.push(new Bumm(enemy.box.pos.clone(), 1, true));
-                } else {
-                    i++;
-                }
-            }
         }
 
         move(item: Item) {
