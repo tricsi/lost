@@ -61,7 +61,6 @@ namespace Game {
             this.back(ctx);
             this.ship.render(ctx);
             this.hero.render(ctx);
-            this.hero.renderJet(ctx);
             this.enemies.render(ctx);
             this.bumms.forEach(bumm => {
                 bumm.render(ctx);
@@ -70,6 +69,9 @@ namespace Game {
 
         input(keys: object, e: KeyboardEvent): void {
             const hero = this.hero;
+            if (hero.inactive()){
+                return;
+            }
             hero.shoot = e.shiftKey;
             hero.speed.y = keys[38] || keys[87] || keys[119] ? -1 : 1;
             if (keys[37] || keys[65] || keys[97]) {
