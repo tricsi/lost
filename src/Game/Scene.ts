@@ -74,6 +74,22 @@ namespace Game {
             });
         }
 
+        input(keys: object, e: KeyboardEvent): void {
+            const hero = this.hero;
+            hero.shoot = e.shiftKey;
+            hero.speed.y = keys[38] || keys[87] || keys[119] ? -1 : 1;
+            if (keys[37] || keys[65] || keys[97]) {
+                hero.speed.x = -1;
+                hero.face = 0;
+            } else if (keys[39] || keys[68] || keys[100]) {
+                hero.speed.x = 1;
+                hero.face = 1;
+            } else {
+                hero.speed.x = 0;
+            }
+
+        }
+
         update(): void {
             this.updateHero();
             this.updateEnemies();

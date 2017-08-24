@@ -22,30 +22,14 @@ namespace Game {
     }
     
     function bind(): void {
-        const hero = scene.hero;
+        const keys = {};
         on(document, 'keydown', (e: KeyboardEvent) => {
-            let key = e.keyCode;
-            if (key == 32) {
-                hero.shoot = true;
-            } else if (key == 38 || key == 87 || key == 119) {
-                hero.speed.y = -1;
-            } else if (key == 37 || key == 65 || key == 97) {
-                hero.speed.x = -1;
-                hero.face = 0;
-            } else if (key == 39 || key == 68 || key == 100) {
-                hero.speed.x = 1;
-                hero.face = 1;
-            }
+            keys[e.keyCode] = true;
+            scene.input(keys, e);
         });
         on(document, 'keyup', (e: KeyboardEvent) => {
-            let key = e.keyCode;
-            if (key == 32) {
-                hero.shoot = false;
-            } else if (key == 38 || key == 87 || key == 119 || key == 40 || key == 83 || key == 115) {
-                hero.speed.y = 1;
-            } else if (key == 37 || key == 65 || key == 97 || key == 39 || key == 68 || key == 100) {
-                hero.speed.x = 0;
-            }
+            keys[e.keyCode] = false;
+            scene.input(keys, e);
         });
         on(window, 'resize', resize);
     }
