@@ -19,9 +19,8 @@ namespace Game {
             Enemy.sprite.render(ctx, this.box, this.color, this.frame != 3 ? this.frame : 1);
         }
 
-        update(scene: Scene): void {
-            scene.move(this);
-            if (scene.tick % 8 == 0) {
+        update(tick: number): void {
+            if (tick % 8 == 0) {
                 this.frame = ++this.frame % 3;
             }
             if (this.collided.y) {

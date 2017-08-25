@@ -23,6 +23,10 @@ namespace Game {
             this.width = width;
         }
 
+        static ready() {
+            return Sprite.load == Sprite.loaded;
+        }
+
         render(ctx: CanvasRenderingContext2D, box: Box, top:number, frame: number, left: number = 0): void {
             let pos = box.pos,
                 x = pos.x,

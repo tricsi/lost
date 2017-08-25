@@ -38,7 +38,7 @@ namespace Game {
         requestAnimationFrame(() => {
             update();
         });
-        if (scene.ready()) {
+        if (Sprite.ready()) {
             scene.update();
             scene.render(ctx);
         }

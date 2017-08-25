@@ -20,11 +20,11 @@ namespace Game {
         constructor(x: number, y: number) {
             this.pos = new Vec(x, y);
             this.box = new Box(null, 16, 24);
-            this.spawn();
+            this.spawn(-100);
         }
 
-        spawn(): void {
-            this.tick = -200;
+        spawn(tick: number = -200): void {
+            this.tick = tick;
             this.walk = true;
             this.face = 0;
             this.frame = 1;
@@ -66,51 +66,23 @@ namespace Game {
             ctx.globalAlpha = 1;
         }
 
-        update(scene: Scene) {
-            scene.move(this);
-            if (!this.spawning()) {
-                scene.enemies.items.forEach((enemy) => {
-                    if (scene.collide(this, enemy)) {
-                        scene.addBumm(this.box.pos.clone(), 1, true);
-                        scene.addBumm(this.box.pos.clone().add(0, 8), 1);
-                        this.spawn();
-                    }
-                });
-            }
-
-            let walk = this.collided.y && this.speed.y > 0;
-            if (this.walk && !walk) {
-                scene.addBumm(this.box.pos.clone().add(this.face ? -8 : 8, 12));
-            }
-            this.walk = walk;
-            if (scene.tick % 8 == 0) {
+        update(tick: number) {
+            if (tick % 8 == 0) {
                 if (this.shoot) {
                     this.shot();
                 }
-                if (!walk) {
+                if (!this.walk) {
                     this.frame = ++this.frame % 3;
                 } else if (this.speed.x != 0) {
                     this.frame = ++this.frame % 4;
                 }
             }
-
-            if (walk && this.jetSound) {
+            if (this.walk && this.jetSound) {
                 this.jetSound.stop();
                 this.jetSound = null;
             }
-            if (!walk && !this.jetSound) {
+            if (!this.walk && !this.jetSound) {
                 this.jetSound = Hero.jetSfx.play(.1, true);
-            }
-
-            let i = 0;
-            while (i < this.lasers.length) {
-                let laser = this.lasers[i];
-                laser.update(scene);
-                if (laser.end) {
-                    this.lasers.splice(i, 1);
-                } else {
-                    i++;
-                }
             }
             this.tick++;
         }

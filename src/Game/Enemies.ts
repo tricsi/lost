@@ -14,13 +14,13 @@ namespace Game {
             this.factory = factory;
         }
 
-        update(scene: Scene) {
-            if (scene.tick % this.freq == 0 && this.items.length < this.limit) {
+        update(tick: number) {
+            if (tick % this.freq == 0 && this.items.length < this.limit) {
                 const item = this.factory.call(this, this.index++);
                 this.items.push(item);
             }
             this.items.forEach(enemy => {
-                enemy.update(scene);
+                enemy.update(tick);
             });
         }
 

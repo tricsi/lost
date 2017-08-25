@@ -23,14 +23,6 @@ namespace Game {
                     Math.round(index % 4) + 1
                 );
             });
-            this.initPlatforms();
-        }
-
-        ready() {
-            return Sprite.load == Sprite.loaded;
-        }
-
-        initPlatforms(): void {
             this.platforms = [
                 new Platform(-50, 0, 350, -1),
                 new Platform(32, 72, 48, 1),
@@ -87,17 +79,86 @@ namespace Game {
         }
 
         update(): void {
-            this.hero.update(this);
-            this.enemies.update(this);
+            this.updateHero();
+            this.updateEnemies();
             this.updateBumms();
             this.tick++;
         }
 
-        addBumm(pos: Vec, color: number = 0, sfx: boolean = false) {
+        updateHero(): void {
+            const hero = this.hero;
+
+            this.move(hero);
+            let walk = hero.collided.y && hero.speed.y > 0;
+            if (hero.walk && !walk) {
+                this.addBumm(hero.box.pos.clone().add(hero.face ? -8 : 8, 12));
+            }
+            hero.walk = walk;
+
+            if (!hero.spawning()) {
+                this.enemies.items.forEach((enemy) => {
+                    if (this.collide(hero, enemy)) {
+                        this.addBumm(hero.box.pos.clone(), 1, true);
+                        this.addBumm(hero.box.pos.clone().add(0, 8), 1);
+                        hero.spawn();
+                    }
+                });
+            }
+            
+            this.hero.update(this.tick);
+            let i = 0;
+            while (i < hero.lasers.length) {
+                let laser = hero.lasers[i];
+                this.updateLaser(laser);
+                if (laser.end) {
+                    hero.lasers.splice(i, 1);
+                } else {
+                    i++;
+                }
+            }
+        }
+
+        updateLaser(laser: Laser): void {
+            let box = laser.box,
+                pos = box.pos;
+
+            pos.x += laser.speed.x;
+            if (pos.x > this.width) {
+                pos.x -= this.width;
+            } else if (pos.x < 0) {
+                pos.x += this.width;
+            }
+
+            laser.update(this.tick);
+            if (laser.end) {
+                return;
+            }
+            
+            let i = 0,
+                items = this.enemies.items;
+            while (i < items.length) {
+                let enemy = items[i];
+                if (this.collide(laser, enemy)) {
+                    items.splice(i, 1);
+                    this.addBumm(enemy.box.pos.clone(), 1, true);
+                } else {
+                    i++;
+                }
+            }
+        }
+
+        updateEnemies(): void {
+            this.enemies.items.forEach(enemy => {
+                this.move(enemy);
+            });
+            this.enemies.update(this.tick);
+        }
+
+        addBumm(pos: Vec, color: number = 0, sfx: boolean = false): void {
             this.bumms.push(new Bumm(pos, color, sfx));
         }
 
-        updateBumms() {
+        updateBumms(): void {
             let i = 0;
             while (i < this.bumms.length) {
                 let bumm = this.bumms[i];
