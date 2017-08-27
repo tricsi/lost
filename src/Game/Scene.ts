@@ -24,7 +24,7 @@ namespace Game {
                 );
             });
             this.platforms = [
-                new Platform(-50, 0, 350, -1),
+                new Platform(-50, 8, 350, -1),
                 new Platform(32, 72, 48, 1),
                 new Platform(120, 96, 32, 1),
                 new Platform(192, 48, 48, 1),
@@ -45,6 +45,12 @@ namespace Game {
             this.platforms.forEach(platform => {
                 platform.render(ctx);
             });
+            new Txt(new Vec(0, 0), 'Player 1').render(ctx);
+            new Txt(new Vec(0, 8), '00000000', 1).render(ctx);
+            new Txt(new Vec(104, 0), 'Hi Score', 2).render(ctx);
+            new Txt(new Vec(104, 8), '00000000', 1).render(ctx);
+            new Txt(new Vec(207, 0), 'Player 2').render(ctx);
+            new Txt(new Vec(207, 8), '00000000', 1).render(ctx);
             this.cache = new Image();
             this.cache.src = ctx.canvas.toDataURL();
         }
