@@ -15,7 +15,7 @@ namespace Game {
         constructor(sprite: Sprite) {
             this.sprite = sprite;
             this.hero = new Hero(96, 160);
-            this.ship = new Ship(160, 136);
+            this.ship = new Ship(new Vec(160, 136), new Vec(128, 80), new Vec(48, 56));
             this.enemies = new Enemies(64, 4, (index: number) => {
                 return new Enemy(
                     new Vec(0, Math.round(Math.random() * 136) + 32),
@@ -80,9 +80,30 @@ namespace Game {
 
         update(): void {
             this.updateHero();
+            this.updateShip();
             this.updateEnemies();
             this.updateBumms();
             this.tick++;
+        }
+
+        updateShip(): void {
+            let ship = this.ship;
+            if (ship.status < ship.parts.length) {
+                let hero = this.hero,
+                    prev = ship.parts[ship.status - 1],
+                    part = ship.parts[ship.status],
+                    diff = Math.abs(prev.box.pos.x - part.box.pos.x);
+                this.move(part);
+                if (diff < 1) {
+                    part.box.pos.x = prev.box.pos.x;
+                    if (part.box.test(prev.box)) {
+                        part.box.pos = prev.box.pos.clone().sub(0, part.box.h);
+                        ship.status++;
+                    }
+                } else if (!hero.inactive() && part.box.test(hero.box)) {
+                    part.box.pos.add(hero.box.pos.clone().add(0, 8).sub(part.box.pos).scale(.2));
+                }
+            }
         }
 
         updateHero(): void {
@@ -219,27 +240,31 @@ namespace Game {
                 speed = item.speed,
                 pos = item.box.pos,
                 old = pos.clone();
-            pos.x += speed.x;
-            if (pos.x > this.width) {
-                pos.x -= this.width;
-            } else if (pos.x < 0) {
-                pos.x += this.width;
-            }
             collided.x = 0;
-            this.platforms.forEach(platform => {
-                if (platform.box.test(item.box)) {
-                    pos.x = old.x;
-                    collided.x = 1;
-                }
-            });
-            pos.y += speed.y;
             collided.y = 0;
-            this.platforms.forEach(platform => {
-                if (platform.box.test(item.box)) {
-                    pos.y = old.y;
-                    collided.y = 1;
+            if (speed.x) {
+                pos.x += speed.x;
+                if (pos.x > this.width) {
+                    pos.x -= this.width;
+                } else if (pos.x < 0) {
+                    pos.x += this.width;
                 }
-            });
+                this.platforms.forEach(platform => {
+                    if (platform.box.test(item.box)) {
+                        pos.x = old.x;
+                        collided.x = 1;
+                    }
+                });
+            }
+            if (speed.y) {
+                pos.y += speed.y;
+                this.platforms.forEach(platform => {
+                    if (platform.box.test(item.box)) {
+                        pos.y = old.y;
+                        collided.y = 1;
+                    }
+                });
+            }
         }
 
     }

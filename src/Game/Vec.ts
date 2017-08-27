@@ -26,5 +26,24 @@ namespace Game {
             }
             return this;
         }
+
+        sub(vec: Vec): Vec;
+        sub(x: number, y:number): Vec;
+        sub(xOrVec: any, y?:number): Vec {
+            if (xOrVec instanceof Vec) {
+                this.x -= xOrVec.x;
+                this.y -= xOrVec.y;
+            } else {
+                this.x -= xOrVec;
+                this.y -= y;
+            }
+            return this;
+        }
+
+        scale(value: number) {
+            this.x *= value;
+            this.y *= value;
+            return this;
+        }
     }
 }
