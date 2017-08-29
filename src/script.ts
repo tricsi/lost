@@ -57,7 +57,9 @@ namespace Game {
             Enemy.sprite = sprite.crop(0, 48, 48, 16, ['f66', 'f6f', '66f', '6ff']);
             Laser.sprite1 = sprite.crop(0, 180, 112, 1, ['f6f', 'f66', '6ff']);
             Laser.sprite2 = sprite.crop(0, 180, 112, 1, ['f6f', 'f66', '6ff'], true);
+            Fuel.sprite = sprite.crop(0, 168, 16, 12, [`f0f`]);
             Ship.sprite = sprite.crop(0, 88, 64, 48, ['f6f']);
+            Ship.jetSprite = sprite.crop(0, 136, 48, 16, ['fc0']);
             Txt.sprite = sprite.crop(0, 181, 108, 14, ['ff0', '0ff']);
             Hero.jetSfx = new Sfx([3,,1,,,.61,,1,1,,,-1,,,-1,,-.76,-.02,.456,0,.18,,-1,.5]);
             Bumm.sfx = new Sfx([3,,.38,.47,.29,.09,,,,,,,,,,.55,.34,-.13,1,,,,,.5]);

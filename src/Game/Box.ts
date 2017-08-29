@@ -19,6 +19,13 @@ namespace Game {
                 this.h + this.pos.y > box.pos.y;
         }
 
+        contains(box: Box): boolean {
+            return this.pos.x <= box.pos.x &&
+                this.pos.x + this.w >= box.pos.x + box.w &&
+                this.pos.y <= box.pos.y &&
+                this.pos.y + this.h >= box.pos.y + box.h;
+        }
+
         intersect(box: Box): Box {
             let Ax = Math.round(this.pos.x),
                 Ay = Math.round(this.pos.y),

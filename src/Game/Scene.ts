@@ -58,7 +58,9 @@ namespace Game {
         render(ctx: CanvasRenderingContext2D): void {
             this.back(ctx);
             this.ship.render(ctx);
-            this.hero.render(ctx);
+            if (!this.ship.go()) {
+                this.hero.render(ctx);
+            }
             this.enemies.render(ctx);
             this.bumms.forEach(bumm => {
                 bumm.render(ctx);
@@ -85,7 +87,9 @@ namespace Game {
         }
 
         update(): void {
-            this.updateHero();
+            if (!this.ship.go()) {
+                this.updateHero();
+            }
             this.updateShip();
             this.updateEnemies();
             this.updateBumms();
@@ -93,22 +97,32 @@ namespace Game {
         }
 
         updateShip(): void {
-            let ship = this.ship;
-            if (ship.status < ship.parts.length) {
-                let hero = this.hero,
-                    prev = ship.parts[ship.status - 1],
-                    part = ship.parts[ship.status],
-                    diff = Math.abs(prev.box.pos.x - part.box.pos.x);
-                this.move(part);
-                if (diff < 1) {
-                    part.box.pos.x = prev.box.pos.x;
-                    if (part.box.test(prev.box)) {
+            let ship = this.ship,
+                hero = this.hero;
+            ship.update(this.tick);
+            if (ship.ready() && ship.box.contains(hero.box)) {
+                ship.status++;
+            }
+            if (ship.go()) {
+                return;
+            }
+            let complete = ship.complete(),
+                prev = ship.parts[complete ? 0 :ship.status - 1],
+                part = complete ? ship.fuel : ship.parts[ship.status],
+                diff = Math.abs(prev.box.pos.x - part.box.pos.x);
+            this.move(part);
+            if (diff < 1) {
+                part.box.pos.x = prev.box.pos.x;
+                if (part.box.test(prev.box)) {
+                    if (complete) {
+                        ship.fuel = new Fuel();
+                    } else {
                         part.box.pos = prev.box.pos.clone().sub(0, part.box.h);
-                        ship.status++;
                     }
-                } else if (!hero.inactive() && part.box.test(hero.box)) {
-                    part.box.pos.add(hero.box.pos.clone().add(0, 8).sub(part.box.pos).scale(.2));
+                    ship.status++;
                 }
+            } else if (!hero.inactive() && part.box.test(hero.box)) {
+                part.box.pos.add(hero.box.pos.clone().add(0, 8).sub(part.box.pos).scale(.2));
             }
         }
 
