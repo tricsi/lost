@@ -4,6 +4,7 @@ namespace Game {
         
         static jetSprite: Sprite;
         static jetSfx: Sfx;
+        static pickSfx: Sfx;
         static sprite: Sprite;
         collided: Vec;
         speed: Vec;
@@ -11,6 +12,7 @@ namespace Game {
         box: Box;
         face: number = 0;
         walk: boolean;
+        pick: boolean = false;
         shoot: boolean;
         tick: number;
         frame: number;
@@ -32,6 +34,13 @@ namespace Game {
             this.speed = new Vec(0, 1);
             this.collided = new Vec(0, 1);
             this.box.pos = this.pos.clone();
+        }
+
+        mute() {
+            if (this.jetSound) {
+                this.jetSound.stop();
+                this.jetSound = null;
+            }
         }
 
         inactive(): boolean {
@@ -77,9 +86,8 @@ namespace Game {
                     this.frame = ++this.frame % 4;
                 }
             }
-            if (this.walk && this.jetSound) {
-                this.jetSound.stop();
-                this.jetSound = null;
+            if (this.walk) {
+                this.mute();
             }
             if (!this.walk && !this.jetSound) {
                 this.jetSound = Hero.jetSfx.play(.1, true);

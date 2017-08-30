@@ -102,6 +102,8 @@ namespace Game {
             ship.update(this.tick);
             if (ship.ready() && ship.box.contains(hero.box)) {
                 ship.status++;
+                Ship.goSfx.play();
+                hero.mute();
             }
             if (ship.go()) {
                 return;
@@ -112,6 +114,7 @@ namespace Game {
                 diff = Math.abs(prev.box.pos.x - part.box.pos.x);
             this.move(part);
             if (diff < 1) {
+                hero.pick = false;
                 part.box.pos.x = prev.box.pos.x;
                 if (part.box.test(prev.box)) {
                     if (complete) {
@@ -120,8 +123,13 @@ namespace Game {
                         part.box.pos = prev.box.pos.clone().sub(0, part.box.h);
                     }
                     ship.status++;
+                    Ship.buildSfx.play();
                 }
             } else if (!hero.inactive() && part.box.test(hero.box)) {
+                if (!hero.pick) {
+                    Hero.pickSfx.play();
+                    hero.pick = true;
+                }
                 part.box.pos.add(hero.box.pos.clone().add(0, 8).sub(part.box.pos).scale(.2));
             }
         }

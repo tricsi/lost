@@ -62,8 +62,12 @@ namespace Game {
             Ship.jetSprite = sprite.crop(0, 136, 48, 16, ['fc0']);
             Txt.sprite = sprite.crop(0, 181, 108, 14, ['ff0', '0ff']);
             Hero.jetSfx = new Sfx([3,,1,,,.61,,1,1,,,-1,,,-1,,-.76,-.02,.456,0,.18,,-1,.5]);
+            Hero.pickSfx = new Sfx([0,,.09,.37,.18,.47,,,,,,.42,.67,,,,,,1,,,,,.5]);
             Bumm.sfx = new Sfx([3,,.38,.47,.29,.09,,,,,,,,,,.55,.34,-.13,1,,,,,.5]);
             Laser.sfx = new Sfx([0,,.12,,.16,.3,.2,-.17,,,,,,.55,-.45,,,,1,,,,,.5]);
+            Ship.goSfx = new Sfx([3,,1,,1,.14,,.08,,,,,,,,,,,1,,,,,.5]);
+            Ship.landSfx = new Sfx([3,,1,,1,.2,,.08,-.08,,,,,,,,,,1,,,,,.5]);
+            Ship.buildSfx = new Sfx([0,,.07,.55,.1,.54,,,,,,.35,.69,,,,,,1,,,,,.5]);
             scene = new Scene(sprite);
             resize();
             bind();

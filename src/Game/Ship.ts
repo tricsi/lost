@@ -44,8 +44,11 @@ namespace Game {
 
         static jetSprite: Sprite;
         static sprite: Sprite;
+        static buildSfx: Sfx;
+        static landSfx: Sfx;
+        static goSfx: Sfx;
         collided: Vec = new Vec(0, 0);
-        speed: Vec = new Vec(0, -.5);
+        speed: Vec = new Vec(0, -1);
         box: Box;
         fuel: Fuel = new Fuel();
         fuels: number = 6;
