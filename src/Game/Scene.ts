@@ -2,21 +2,22 @@ namespace Game {
 
     export class Scene {
 
-        sprite: Sprite;
-        tick: number = 0;
+        static sprite: Sprite;
+        tick: number = 1;
         hero: Hero;
         ship: Ship;
+        loot: Loot = null;
         width: number = 256;
         bumms: Bumm[] = [];
         cache: HTMLImageElement;
-        enemies: Enemies;
+        enemies: Spawner;
         platforms: Platform[];
 
-        constructor(sprite: Sprite) {
-            this.sprite = sprite;
+        constructor() {
             this.hero = new Hero(96, 160);
+            //this.ship = new Ship(new Vec(160, -120));
             this.ship = new Ship(new Vec(160, 136), new Vec(128, 80), new Vec(48, 56));
-            this.enemies = new Enemies(64, 4, (index: number) => {
+            this.enemies = new Spawner(64, 4, (index: number) => {
                 return new Enemy(
                     new Vec(0, Math.round(Math.random() * 136) + 32),
                     new Vec(.5, Math.random() > .5 ? .5 : -.5),
@@ -30,6 +31,10 @@ namespace Game {
                 new Platform(192, 48, 48, 1),
                 new Platform(-50, 184, 350, 2),
             ];
+        }
+
+        complete(): boolean {
+            return this.ship.gone();
         }
 
         back(ctx: CanvasRenderingContext2D): void {
@@ -58,6 +63,9 @@ namespace Game {
         render(ctx: CanvasRenderingContext2D): void {
             this.back(ctx);
             this.ship.render(ctx);
+            if (this.loot) {
+                this.loot.render(ctx);
+            }
             if (!this.ship.go()) {
                 this.hero.render(ctx);
             }
@@ -87,10 +95,9 @@ namespace Game {
         }
 
         update(): void {
-            if (!this.ship.go()) {
-                this.updateHero();
-            }
+            this.updateHero();
             this.updateShip();
+            this.updateLoot();
             this.updateEnemies();
             this.updateBumms();
             this.tick++;
@@ -105,11 +112,11 @@ namespace Game {
                 Ship.goSfx.play();
                 hero.mute();
             }
-            if (ship.go()) {
+            if (ship.go() || !ship.land()) {
                 return;
             }
             let complete = ship.complete(),
-                prev = ship.parts[complete ? 0 :ship.status - 1],
+                prev = ship.parts[complete ? 0 : ship.status - 1],
                 part = complete ? ship.fuel : ship.parts[ship.status],
                 diff = Math.abs(prev.box.pos.x - part.box.pos.x);
             this.move(part);
@@ -125,18 +132,40 @@ namespace Game {
                     ship.status++;
                     Ship.buildSfx.play();
                 }
-            } else if (!hero.inactive() && part.box.test(hero.box)) {
-                if (!hero.pick) {
-                    Hero.pickSfx.play();
-                    hero.pick = true;
+            } else if (!hero.inactive() && !ship.ready()) {
+                let box = hero.box.clone(),
+                    pos = part.box.pos,
+                    width = this.width,
+                    collide = box.test(part.box);
+                if (!collide) {
+                    box.pos.x -= width;
+                    collide = box.test(part.box);
                 }
-                part.box.pos.add(hero.box.pos.clone().add(0, 8).sub(part.box.pos).scale(.2));
+                if (!collide) {
+                    box.pos.x += width * 2;
+                    collide = box.test(part.box);
+                }
+                if (collide) {
+                    if (!hero.pick) {
+                        Hero.pickSfx.play();
+                        hero.pick = true;
+                    }
+                    pos.add(box.pos.add(0, 8).sub(pos).scale(.2));
+                    if (pos.x < 0) {
+                        pos.x += width;
+                    } else if (pos.x > width) {
+                        pos.x -= width;
+                    }
+                }
             }
         }
 
         updateHero(): void {
-            const hero = this.hero;
-
+            let hero = this.hero,
+                ship = this.ship;
+            if (!ship.land() || ship.go()) {
+                return;
+            }
             this.move(hero);
             let walk = hero.collided.y && hero.speed.y > 0;
             if (hero.walk && !walk) {
@@ -144,16 +173,6 @@ namespace Game {
             }
             hero.walk = walk;
 
-            if (!hero.spawning()) {
-                this.enemies.items.forEach((enemy) => {
-                    if (this.collide(hero, enemy)) {
-                        this.addBumm(hero.box.pos.clone(), 1, true);
-                        this.addBumm(hero.box.pos.clone().add(0, 8), 1);
-                        hero.spawn();
-                    }
-                });
-            }
-            
             this.hero.update(this.tick);
             let i = 0;
             while (i < hero.lasers.length) {
@@ -196,11 +215,38 @@ namespace Game {
             }
         }
 
+        updateLoot(): void {
+            if (this.loot === null) {
+                if (this.tick % 1000 == 0) {
+                    this.loot = new Loot();
+                }
+                return;
+            }
+            let loot = this.loot;
+            this.move(loot);
+            loot.update(this.tick);
+            if (this.collide(loot, this.hero)) {
+                Loot.sfx.play();
+                this.loot = null;
+            }
+        }
+
         updateEnemies(): void {
-            this.enemies.items.forEach(enemy => {
-                this.move(enemy);
+            let hero = this.hero,
+                enemies = this.enemies;
+            enemies.items.forEach(item => {
+                this.move(item);
             });
-            this.enemies.update(this.tick);
+            if (!hero.spawning()) {
+                enemies.items.forEach((enemy) => {
+                    if (this.collide(hero, enemy)) {
+                        this.addBumm(hero.box.pos.clone(), 1, true);
+                        this.addBumm(hero.box.pos.clone().add(0, 8), 1);
+                        hero.spawn();
+                    }
+                });
+            }
+            enemies.update(this.tick);            
         }
 
         addBumm(pos: Vec, color: number = 0, sfx: boolean = false): void {
@@ -221,7 +267,7 @@ namespace Game {
         }
 
         collide(a: Item, b: Item): boolean {
-            let ctx = this.sprite.ictx,
+            let ctx = Scene.sprite.ictx,
                 width = this.width,
                 ab = a.box.clone(),
                 bb = b.box.clone(),
@@ -240,8 +286,8 @@ namespace Game {
                 }
             }
             let box = ab.intersect(bb),
-                x = Math.round(box.pos.x),
-                y = Math.round(box.pos.y),
+                x = box.pos.x,
+                y = box.pos.y,
                 w = box.w + 1,
                 h = box.h + 1;
 

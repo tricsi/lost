@@ -29,8 +29,8 @@ namespace Game {
 
         render(ctx: CanvasRenderingContext2D, box: Box, top:number, frame: number, left: number = 0): void {
             let pos = box.pos,
-                x = pos.x,
-                y = pos.y,
+                x = Math.round(pos.x),
+                y = Math.round(pos.y),
                 w = box.w,
                 h = box.h;
             top *= h;

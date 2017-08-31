@@ -1,6 +1,6 @@
 namespace Game {
 
-    export class Enemies {
+    export class Spawner {
 
         freq: number;
         limit: number;

@@ -28,7 +28,7 @@ namespace Game {
         box: Box;
         
         constructor() {
-            let x = Math.round(Math.random() * 8) * 16;
+            let x = Math.round(Math.random() * 30) * 8;
             this.box = new Box(new Vec(x, 16), 16, 12);
         }
 
@@ -58,7 +58,12 @@ namespace Game {
 
         constructor(pos: Vec, pos1: Vec = null, pos2: Vec = null) {
             this.box = new Box(pos, 16, 48);
-            this.status = pos1 ? 1 : 3;
+            if (pos1) {
+                this.status = 1;
+            } else {
+                this.status = 3;
+                Ship.landSfx.play();
+            }
             this.parts = [
                 new Part(pos.clone().add(0, 32), 2),
                 new Part(pos1 || pos.clone().add(0, 16), 1),
@@ -66,27 +71,29 @@ namespace Game {
             ];
         }
         
-        complete() {
+        complete(): boolean {
             return this.status >= this.parts.length;
         }
 
-        ready() {
+        ready(): boolean {
             return this.status == this.parts.length + this.fuels;
         }
 
-        go() {
+        land(): boolean {
+            return this.box.pos.y == 136;
+        }
+
+        go(): boolean {
             return this.status > this.parts.length + this.fuels;
+        }
+
+        gone(): boolean {
+            return this.go() && this.box.pos.y <= -120;
         }
 
         render(ctx: CanvasRenderingContext2D): void  {
             if (this.ready() || this.go()) {
                 Ship.sprite.render(ctx, this.box, Math.floor(this.tick % 4 / 2), 0);
-                if (this.go()) {
-                    let box = this.box.clone();
-                    box.pos.y += box.h;
-                    box.h = 16;
-                    Ship.jetSprite.render(ctx, box, 1, this.tick % 3);
-                }
             } else if (this.complete()) {
                 let box = this.box.clone(),
                     fuels = this.fuels,
@@ -97,11 +104,19 @@ namespace Game {
                     Ship.sprite.render(ctx, box, top, 0);
                     box.pos.y += box.h;
                 }
-                this.fuel.render(ctx);
+                if (this.land()) {
+                    this.fuel.render(ctx);
+                }
             } else {
                 this.parts.forEach((part, i) => {
                     part.render(ctx);
                 });
+            }
+            if (!this.land() || this.go()) {
+                let box = this.box.clone();
+                box.pos.y += box.h;
+                box.h = 16;
+                Ship.jetSprite.render(ctx, box, 1, this.tick % 3);
             }
         }
 
@@ -111,6 +126,9 @@ namespace Game {
             }
             if (this.go()) {
                 this.box.pos.add(this.speed);
+            } else if (!this.land()) {
+                this.box.pos.sub(this.speed);
+                this.parts[0].box.pos.sub(this.speed);
             }
         }
     }

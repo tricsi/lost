@@ -12,7 +12,7 @@ namespace Game {
         box: Box;
         face: number = 0;
         walk: boolean;
-        pick: boolean = false;
+        pick: boolean;
         shoot: boolean;
         tick: number;
         frame: number;
@@ -22,12 +22,13 @@ namespace Game {
         constructor(x: number, y: number) {
             this.pos = new Vec(x, y);
             this.box = new Box(null, 16, 24);
-            this.spawn(-100);
+            this.spawn();
         }
 
         spawn(tick: number = -200): void {
             this.tick = tick;
             this.walk = true;
+            this.pick = false;
             this.face = 0;
             this.frame = 1;
             this.shoot = false;
