@@ -12,9 +12,7 @@ namespace Game {
             this.top = top;
         }
 
-        render(ctx: CanvasRenderingContext2D): void {
-            Ship.sprite.render(ctx, this.box, this.top, 0);
-        }
+        render(ctx: CanvasRenderingContext2D): void {}
 
         update(tick: number): void {}
 
@@ -52,11 +50,12 @@ namespace Game {
         box: Box;
         fuel: Fuel = new Fuel();
         fuels: number = 6;
-        parts: Item[];
+        parts: Part[];
         status: number;
         tick: number = 0;
+        type: number;
 
-        constructor(pos: Vec, pos1: Vec = null, pos2: Vec = null) {
+        constructor(type: number, pos: Vec, pos1: Vec = null, pos2: Vec = null) {
             this.box = new Box(pos, 16, 48);
             if (pos1) {
                 this.status = 1;
@@ -69,6 +68,7 @@ namespace Game {
                 new Part(pos1 || pos.clone().add(0, 16), 1),
                 new Part(pos2 || pos.clone(), 0),
             ];
+            this.type = type;
         }
         
         complete(): boolean {
@@ -92,8 +92,9 @@ namespace Game {
         }
 
         render(ctx: CanvasRenderingContext2D): void  {
+            let frame = this.type;
             if (this.ready() || this.go()) {
-                Ship.sprite.render(ctx, this.box, Math.floor(this.tick % 4 / 2), 0);
+                Ship.sprite.render(ctx, this.box, Math.floor(this.tick % 4 / 2), frame);
             } else if (this.complete()) {
                 let box = this.box.clone(),
                     fuels = this.fuels,
@@ -101,7 +102,7 @@ namespace Game {
                 box.h /= fuels;
                 for (let i = 0; i < fuels; i++) {
                     let top = status > i ? i : i + fuels;
-                    Ship.sprite.render(ctx, box, top, 0);
+                    Ship.sprite.render(ctx, box, top, frame);
                     box.pos.y += box.h;
                 }
                 if (this.land()) {
@@ -109,7 +110,7 @@ namespace Game {
                 }
             } else {
                 this.parts.forEach((part, i) => {
-                    part.render(ctx);
+                    Ship.sprite.render(ctx, part.box, part.top, frame);
                 });
             }
             if (!this.land() || this.go()) {

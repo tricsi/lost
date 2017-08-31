@@ -15,8 +15,9 @@ namespace Game {
 
         constructor() {
             this.hero = new Hero(96, 160);
-            //this.ship = new Ship(new Vec(160, -120));
-            this.ship = new Ship(new Vec(160, 136), new Vec(128, 80), new Vec(48, 56));
+            //this.ship = new Ship(0, new Vec(160, -120));
+            this.ship = new Ship(0, new Vec(160, 136), new Vec(128, 80), new Vec(48, 56));
+            //this.ship.status = 9;
             this.enemies = new Spawner(64, 4, (index: number) => {
                 return new Enemy(
                     new Vec(0, Math.round(Math.random() * 136) + 32),
@@ -225,7 +226,7 @@ namespace Game {
             let loot = this.loot;
             this.move(loot);
             loot.update(this.tick);
-            if (this.collide(loot, this.hero)) {
+            if (!this.ship.go() && this.collide(loot, this.hero)) {
                 Loot.sfx.play();
                 this.loot = null;
             }
@@ -237,7 +238,7 @@ namespace Game {
             enemies.items.forEach(item => {
                 this.move(item);
             });
-            if (!hero.spawning()) {
+            if (!hero.spawning() && !this.ship.go()) {
                 enemies.items.forEach((enemy) => {
                     if (this.collide(hero, enemy)) {
                         this.addBumm(hero.box.pos.clone(), 1, true);
