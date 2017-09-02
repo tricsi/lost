@@ -45,5 +45,17 @@ namespace Game {
             this.y *= value;
             return this;
         }
+
+        length(): number {
+            return Math.sqrt(this.x * this.x + this.y * this.y);
+        }
+
+        normalize(): Vec {
+            var len = this.length();
+            if (len > 0) {
+                this.scale(1 / len);
+            }
+            return this;
+        }
     }
 }

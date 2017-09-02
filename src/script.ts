@@ -10,9 +10,21 @@ namespace Game {
         element.addEventListener(event, callback, false);
     }
 
+    export class Rand {
+
+        static seed: number = Math.round(Math.random() * 1000);
+
+        static get(max: number = 1, min: number = 0): number {
+            Rand.seed = (Rand.seed * 9301 + 49297) % 233280;
+            return min + (Rand.seed / 233280) * (max - min);
+        }
+
+    }
+    
     let canvas: HTMLCanvasElement,
         ctx: CanvasRenderingContext2D,
-        scene: Scene;
+        scene: Scene,
+        level: number = 0;
 
     function resize(): void {
         let body = document.body,
@@ -44,7 +56,13 @@ namespace Game {
         });
         if (Sprite.ready() && Sfx.ready()) {
             if (!scene || scene.complete()) {
-                scene = new Scene();                
+                switch(level % 4) {
+                    case 1: scene = new Scene2(level); break;
+                    case 2: scene = new Scene3(level); break;
+                    case 3: scene = new Scene4(level); break;
+                    default: scene = new Scene1(level);
+                }
+                level++;
             }
             scene.update();
             scene.render(ctx);
@@ -62,7 +80,6 @@ namespace Game {
             Hero.jetSprite = sprite.crop(64, 0, 48, 48, ['fc0']);
             Bumm.sprite = sprite.crop(0, 152, 48, 16, ['fc0']);
             Platform.sprite = sprite.crop(0, 80, 24, 8, ['0c0', 'fc0']);
-            Enemy.sprite = sprite.crop(0, 48, 48, 16, ['f66', 'f6f', '66f', '6ff']);
             Laser.sprite1 = sprite.crop(0, 180, 112, 1, ['f6f', 'f66', '6ff']);
             Laser.sprite2 = sprite.crop(0, 180, 112, 1, ['f6f', 'f66', '6ff'], true);
             Loot.sprite = sprite.crop(16, 168, 80, 12, ['f0f', '0ff', 'ff0']);
@@ -78,6 +95,18 @@ namespace Game {
             Ship.goSfx = new Sfx([3,,1,,1,.14,,.08,,,,,,,,,,,1,,,,,.5]);
             Ship.landSfx = new Sfx([3,,1,,1,.2,,.08,-.05,,,,,,,,,,1,,,,,.5]);
             Ship.buildSfx = new Sfx([0,,.07,.55,.1,.54,,,,,,.35,.69,,,,,,1,,,,,.5]);
+            for (let i = 48; i <= 64; i += 16) {
+                Enemy.sprites.push(
+                    sprite.crop(0, i, 48, 16, ['f66', 'f6f', '66f', '6ff']),
+                    sprite.crop(0, i, 48, 16, ['f66', 'f6f', '66f', '6ff'], true)
+                );
+            }
+            for (let i = 48; i <= 128; i += 16) {
+                Enemy.sprites.push(
+                    sprite.crop(64, i, 48, 16, ['f66', 'f6f', '66f', '6ff']),
+                    null
+                );
+            }
             resize();
             bind();
             update();

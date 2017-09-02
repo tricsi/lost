@@ -4,7 +4,7 @@ namespace Game {
 
         static sprite: Sprite;
         tick: number = 1;
-        hero: Hero;
+        hero: Hero = new Hero(96, 160);
         ship: Ship;
         loot: Loot = null;
         width: number = 256;
@@ -13,29 +13,33 @@ namespace Game {
         enemies: Spawner;
         platforms: Platform[];
 
-        constructor() {
-            this.hero = new Hero(96, 160);
-            //this.ship = new Ship(0, new Vec(160, -120));
-            this.ship = new Ship(0, new Vec(160, 136), new Vec(128, 80), new Vec(48, 56));
-            //this.ship.status = 9;
-            this.enemies = new Spawner(64, 4, (index: number) => {
-                return new Enemy(
-                    new Vec(0, Math.round(Math.random() * 136) + 32),
-                    new Vec(.5, Math.random() > .5 ? .5 : -.5),
-                    Math.round(index % 4) + 1
-                );
-            });
+        constructor(level: number, color1: number = 1, color2: number = 2) {
+            let type = Math.floor(level / 4) % 4;
+            this.ship = level % 4
+                ? new Ship(type, new Vec(160, -120))
+                : new Ship(type, new Vec(160, 136), new Vec(128, 80), new Vec(48, 56));
             this.platforms = [
                 new Platform(-50, 8, 350, -1),
-                new Platform(32, 72, 48, 1),
-                new Platform(120, 96, 32, 1),
-                new Platform(192, 48, 48, 1),
-                new Platform(-50, 184, 350, 2),
+                new Platform(32, 72, 48, color1),
+                new Platform(120, 96, 32, color1),
+                new Platform(192, 48, 48, color1),
+                new Platform(-50, 184, 350, color2),
             ];
         }
 
         complete(): boolean {
             return this.ship.gone();
+        }
+
+        ai() {
+            this.enemies.items.forEach(item => {
+                if (item.collided.y) {
+                    item.speed.y = -item.speed.y;
+                }
+                if (item.collided.x) {
+                    item.speed.x = -item.speed.x;
+                }                
+            });
         }
 
         back(ctx: CanvasRenderingContext2D): void {
@@ -51,11 +55,11 @@ namespace Game {
             this.platforms.forEach(platform => {
                 platform.render(ctx);
             });
-            new Txt(new Vec(0, 0), 'Player 1').render(ctx);
+            new Txt(new Vec(0, 0), 'Score').render(ctx);
             new Txt(new Vec(0, 8), '00000000', 1).render(ctx);
-            new Txt(new Vec(104, 0), 'Hi Score', 2).render(ctx);
-            new Txt(new Vec(104, 8), '00000000', 1).render(ctx);
-            new Txt(new Vec(207, 0), 'Player 2').render(ctx);
+            new Txt(new Vec(120, 0), 'HP', 2).render(ctx);
+            new Txt(new Vec(120, 8), '04', 1).render(ctx);
+            new Txt(new Vec(207, 0), 'Hi Score').render(ctx);
             new Txt(new Vec(207, 8), '00000000', 1).render(ctx);
             this.cache = new Image();
             this.cache.src = ctx.canvas.toDataURL();
@@ -170,7 +174,7 @@ namespace Game {
             this.move(hero);
             let walk = hero.collided.y && hero.speed.y > 0;
             if (hero.walk && !walk) {
-                this.addBumm(hero.box.pos.clone().add(hero.face ? -8 : 8, 12));
+                this.addBumm(hero.box.pos.clone().add(hero.face ? -8 : 8, 12), 0, false);
             }
             hero.walk = walk;
 
@@ -209,7 +213,7 @@ namespace Game {
                 let enemy = items[i];
                 if (this.collide(laser, enemy)) {
                     items.splice(i, 1);
-                    this.addBumm(enemy.box.pos.clone(), 1, true);
+                    this.addBumm(enemy.box.pos.clone());
                 } else {
                     i++;
                 }
@@ -238,11 +242,12 @@ namespace Game {
             enemies.items.forEach(item => {
                 this.move(item);
             });
+            this.ai();
             if (!hero.spawning() && !this.ship.go()) {
                 enemies.items.forEach((enemy) => {
                     if (this.collide(hero, enemy)) {
-                        this.addBumm(hero.box.pos.clone(), 1, true);
-                        this.addBumm(hero.box.pos.clone().add(0, 8), 1);
+                        this.addBumm(hero.box.pos.clone());
+                        this.addBumm(hero.box.pos.clone().add(0, 8), 1, false);
                         hero.spawn();
                     }
                 });
@@ -250,7 +255,7 @@ namespace Game {
             enemies.update(this.tick);            
         }
 
-        addBumm(pos: Vec, color: number = 0, sfx: boolean = false): void {
+        addBumm(pos: Vec, color: number = 1, sfx: boolean = true): void {
             this.bumms.push(new Bumm(pos, color, sfx));
         }
 
@@ -344,4 +349,77 @@ namespace Game {
 
     }
 
+    export class Scene1 extends Scene {
+
+        constructor(level: number) {
+            super(level);
+            this.enemies = new Spawner(64, 4, () => {
+                return new Enemy(.5, Rand.get() / 2 -.25, 0, );
+            });
+        }
+
+        ai() {
+            let i = 0,
+                enemies = this.enemies.items;
+            while (i < enemies.length) {
+                let item = enemies[i];
+                if (item.collided.x || item.collided.y) {
+                    this.addBumm(item.box.pos);
+                    enemies.splice(i, 1);
+                } else {
+                    i++;
+                }
+            }
+        }
+    }
+
+    export class Scene2 extends Scene {
+
+        constructor(level: number) {
+            super(level);
+            this.enemies = new Spawner(64, 4, () => {
+                return new Enemy(.5, Rand.get() >= .5 ? .5 : -.5, 7);
+            });
+        }
+    }
+
+    export class Scene3 extends Scene {
+        
+        constructor(level: number) {
+            super(level);
+            this.enemies = new Spawner(64, 4, () => {
+                return new Enemy(.5, 0, 6);
+            });
+        }
+
+        ai() {
+            super.ai();
+            this.enemies.items.forEach((item: Enemy) => {
+                if (item.tick % 64 == 0) {
+                    item.speed.y = (Math.round(Rand.get() * 2) - 1) / 2;
+                }
+            });
+        }
+    }
+    
+    
+    export class Scene4 extends Scene {
+        
+        constructor(level: number) {
+            super(level);
+            this.enemies = new Spawner(64, 4, () => {
+                return new Enemy(.5, -.5, 4);
+            });
+        }
+
+        ai() {
+            this.enemies.items.forEach((item: Enemy) => {
+                let hero = this.hero;
+                if (item.tick % 80 == 0 && !hero.inactive()) {
+                    item.speed = hero.box.pos.clone().sub(item.box.pos).normalize().scale(.5);
+                }
+            });
+        }
+    }
+        
 }
