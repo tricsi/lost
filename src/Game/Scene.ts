@@ -349,12 +349,12 @@ namespace Game {
 
     }
 
-    export class Scene1 extends Scene {
+    export class Scene0 extends Scene {
 
         constructor(level: number) {
             super(level);
-            this.enemies = new Spawner(64, 4, () => {
-                return new Enemy(.5, Rand.get() / 2 -.25, 0, );
+            this.enemies = new Spawner(() => {
+                return new Enemy(.5, Rand.get() / 2 -.25, 0);
             });
         }
 
@@ -373,21 +373,21 @@ namespace Game {
         }
     }
 
-    export class Scene2 extends Scene {
+    export class Scene1 extends Scene {
 
         constructor(level: number) {
             super(level);
-            this.enemies = new Spawner(64, 4, () => {
-                return new Enemy(.5, Rand.get() >= .5 ? .5 : -.5, 7);
+            this.enemies = new Spawner(() => {
+                return new Enemy(.5, Rand.get() < .5 ? -.5 : .5, 7);
             });
         }
     }
 
-    export class Scene3 extends Scene {
+    export class Scene2 extends Scene {
         
         constructor(level: number) {
             super(level);
-            this.enemies = new Spawner(64, 4, () => {
+            this.enemies = new Spawner(() => {
                 return new Enemy(.5, 0, 6);
             });
         }
@@ -402,12 +402,39 @@ namespace Game {
         }
     }
     
+    export class Scene3 extends Scene {
+        
+        constructor(level: number) {
+            super(level);
+            this.enemies = new Spawner(() => {
+                return new Enemy(0, 0, 1);
+            });
+        }
+
+        ai() {
+            let i = 0,
+                hero = this.hero,
+                enemies = this.enemies.items;
+            while (i < enemies.length) {
+                let item: Enemy = <Enemy>enemies[i];
+                if (item.tick % 80 == 0 && item.speed.x == 0) {
+                    item.speed = hero.box.pos.clone().sub(item.box.pos).normalize();
+                }
+                if (item.collided.x || item.collided.y) {
+                    this.addBumm(item.box.pos);
+                    enemies.splice(i, 1);
+                } else {
+                    i++;
+                }
+            }
+        }
+    }
     
     export class Scene4 extends Scene {
         
         constructor(level: number) {
             super(level);
-            this.enemies = new Spawner(64, 4, () => {
+            this.enemies = new Spawner(() => {
                 return new Enemy(.5, -.5, 4);
             });
         }
@@ -416,10 +443,41 @@ namespace Game {
             this.enemies.items.forEach((item: Enemy) => {
                 let hero = this.hero;
                 if (item.tick % 80 == 0 && !hero.inactive()) {
-                    item.speed = hero.box.pos.clone().sub(item.box.pos).normalize().scale(.5);
+                    item.speed = hero.box.pos.clone().sub(item.box.pos).normalize().scale(.7);
                 }
             });
         }
     }
+
+    export class Scene5 extends Scene {
+
+        constructor(level: number) {
+            super(level);
+            this.enemies = new Spawner(() => {
+                return new Enemy(.5, Rand.get() < .5 ? -.7 : .7, 5);
+            });
+        }
+    }
+
+    
+    export class Scene6 extends Scene0 {
         
+        constructor(level: number) {
+            super(level);
+            this.enemies = new Spawner(() => {
+                return new Enemy(.7, Rand.get() / 2 -.25, 2);
+            });
+        }
+    }
+
+    export class Scene7 extends Scene4 {
+        
+        constructor(level: number) {
+            super(level);
+            this.enemies = new Spawner(() => {
+                return new Enemy(.5, -.5, 3);
+            });
+        }
+
+    }
 }

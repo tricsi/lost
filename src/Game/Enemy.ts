@@ -10,21 +10,23 @@ namespace Game {
         frame: number = 0;
         tick: number = 0;
         type: number;
+        flip: boolean;
         box: Box;
 
         constructor(sx: number, sy:number, type: number) {
-            let face = Rand.get() >= .5,
-                x = face ? 0 : 240,
+            this.flip = Rand.get() < .5;
+            let x = this.flip ? 240 : 0,
                 y = Math.round(Rand.get(136)) + 32;
             this.box = new Box(new Vec(x, y), 16, 16);
-            this.speed = new Vec(face ? sx : -sx, sy);
+            this.speed = new Vec(this.flip ? -sx : sx, sy);
             this.color = Enemy.count++ % 4 + 1;
             this.type = type;
         }
 
         render(ctx: CanvasRenderingContext2D): void  {
-            let i = this.type * 2;
-            if (this.speed.x < 0 && Enemy.sprites[i + 1] !== null) {
+            let i = this.type * 2,
+                s = String(this.speed.x).charAt(0);
+            if (this.flip && Enemy.sprites[i + 1] !== null) {
                 i++;
             }
             Enemy.sprites[i].render(ctx, this.box, this.color, this.frame != 3 ? this.frame : 1);

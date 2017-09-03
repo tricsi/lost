@@ -8,7 +8,7 @@ namespace Game {
         index: number = 0;
         factory: (index: number) => Item;
 
-        constructor(freq: number, limit: number, factory: (index: number) => Item) {
+        constructor(factory: (index: number) => Item, freq: number = 64, limit: number = 4) {
             this.freq = freq;
             this.limit = limit;
             this.factory = factory;
