@@ -9,6 +9,7 @@
     },
     "include": [
         "src/jsfxr.js",
+        "src/TinyMusic.js",
         "src/Game/*.ts",
         "src/script.ts"
     ]
