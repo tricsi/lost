@@ -4,8 +4,10 @@ body, html {
     margin: 0;
     padding: 0;
     overflow: hidden;
+    color: #ddd;
     background: #000;
     text-align: center;
+    font: 15px arial, sans-serif;
 }
 
 #game {
@@ -14,8 +16,14 @@ body, html {
     image-rendering: -o-crisp-edges;
     image-rendering: -webkit-optimize-contrast;
     image-rendering: pixelated;
+    box-sizing: border-box;
+    padding: 40px;
 }
 
 #test {
     display: none;
+}
+
+#hint {
+    margin-top: -30px;
 }

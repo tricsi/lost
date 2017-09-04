@@ -3,6 +3,7 @@ namespace Game {
     export class Scene {
 
         static sprite: Sprite;
+        level: number;
         tick: number = 1;
         hero: Hero = new Hero(96, 160);
         ship: Ship;
@@ -25,6 +26,7 @@ namespace Game {
                 new Platform(192, 48, 48, color1),
                 new Platform(-50, 184, 350, color2),
             ];
+            this.level = level;
         }
 
         complete(): boolean {
@@ -56,11 +58,8 @@ namespace Game {
                 platform.render(ctx);
             });
             new Txt(new Vec(0, 0), 'Score').render(ctx);
-            new Txt(new Vec(0, 8), '00000000', 1).render(ctx);
             new Txt(new Vec(120, 0), 'HP', 2).render(ctx);
-            new Txt(new Vec(120, 8), '04', 1).render(ctx);
-            new Txt(new Vec(207, 0), 'Hi Score').render(ctx);
-            new Txt(new Vec(207, 8), '00000000', 1).render(ctx);
+            new Txt(new Vec(231, 0), 'High').render(ctx);
             this.cache = new Image();
             this.cache.src = ctx.canvas.toDataURL();
         }
@@ -86,11 +85,11 @@ namespace Game {
                 return;
             }
             hero.shoot = e.shiftKey;
-            hero.speed.y = keys[38] || keys[87] || keys[119] ? -1 : 1;
-            if (keys[37] || keys[65] || keys[97]) {
+            hero.speed.y = keys[38] || keys[87] || keys[90] ? -1 : 1;
+            if (keys[37] || keys[65] || keys[81]) {
                 hero.speed.x = -1;
                 hero.face = 0;
-            } else if (keys[39] || keys[68] || keys[100]) {
+            } else if (keys[39] || keys[68]) {
                 hero.speed.x = 1;
                 hero.face = 1;
             } else {
@@ -114,8 +113,12 @@ namespace Game {
             ship.update(this.tick);
             if (ship.ready() && ship.box.contains(hero.box)) {
                 ship.status++;
-                Ship.goSfx.play();
                 hero.mute();
+                Ship.goSfx.play();
+                Session.get().add(250);
+                if (this.level % 4 == 3) {
+                    Session.get().inc();
+                }
             }
             if (ship.go() || !ship.land()) {
                 return;
@@ -136,6 +139,7 @@ namespace Game {
                     }
                     ship.status++;
                     Ship.buildSfx.play();
+                    Session.get().add(25);
                 }
             } else if (!hero.inactive() && !ship.ready()) {
                 let box = hero.box.clone(),
@@ -214,6 +218,7 @@ namespace Game {
                 if (this.collide(laser, enemy)) {
                     items.splice(i, 1);
                     this.addBumm(enemy.box.pos.clone());
+                    Session.get().add(15);
                 } else {
                     i++;
                 }
@@ -232,6 +237,7 @@ namespace Game {
             loot.update(this.tick);
             if (!this.ship.go() && this.collide(loot, this.hero)) {
                 Loot.sfx.play();
+                Session.get().add(125);
                 this.loot = null;
             }
         }
@@ -248,6 +254,7 @@ namespace Game {
                     if (this.collide(hero, enemy)) {
                         this.addBumm(hero.box.pos.clone());
                         this.addBumm(hero.box.pos.clone().add(0, 8), 1, false);
+                        Session.get().dec();
                         hero.spawn();
                     }
                 });
