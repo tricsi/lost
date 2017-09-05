@@ -4,8 +4,8 @@ namespace Game {
 
         private static insta: Session;
         private static store: string = 'LoST_hi';
-        lives: number;
-        score: number;
+        lives: number = 0;
+        score: number = 0;
         high: number;
 
         livesTxt: Txt;
@@ -14,10 +14,9 @@ namespace Game {
 
         private constructor() {
             this.high = JSON.parse(localStorage.getItem(Session.store)) || 0;
-            this.livesTxt = new Txt(new Vec(120, 8), '', 1);
-            this.scoreTxt = new Txt(new Vec(0, 8), '', 1);
-            this.highTxt = new Txt(new Vec(213, 8), '', 1);
-            this.clear();
+            this.livesTxt = new Txt(120, 8, '', 1);
+            this.scoreTxt = new Txt(0, 8, '', 1);
+            this.highTxt = new Txt(213, 8, '', 1);
         }
 
         static get(): Session {
@@ -27,7 +26,7 @@ namespace Game {
             return Session.insta;
         }
 
-        clear() {
+        init() {
             this.lives = 4;
             this.score = 0;
         }

@@ -1,6 +1,15 @@
 namespace Game {
 
-    export class Scene {
+    export interface SceneInterface {
+
+        input(keys: object, e: KeyboardEvent): void;
+        render(ctx: CanvasRenderingContext2D): void;
+        update(): void;
+        complete(): boolean;
+
+    }
+
+    export class Scene implements SceneInterface {
 
         static sprite: Sprite;
         level: number;
@@ -10,23 +19,16 @@ namespace Game {
         loot: Loot = null;
         width: number = 256;
         bumms: Bumm[] = [];
-        cache: HTMLImageElement;
+        planet: Planet;
         enemies: Spawner;
-        platforms: Platform[];
 
-        constructor(level: number, color1: number = 1, color2: number = 2) {
+        constructor(level: number) {
             let type = Math.floor(level / 4) % 4;
             this.ship = level % 4
                 ? new Ship(type, new Vec(160, -120))
                 : new Ship(type, new Vec(160, 136), new Vec(128, 80), new Vec(48, 56));
-            this.platforms = [
-                new Platform(-50, 8, 350, -1),
-                new Platform(32, 72, 48, color1),
-                new Platform(120, 96, 32, color1),
-                new Platform(192, 48, 48, color1),
-                new Platform(-50, 184, 350, color2),
-            ];
             this.level = level;
+            this.planet = new Planet();
         }
 
         complete(): boolean {
@@ -44,28 +46,8 @@ namespace Game {
             });
         }
 
-        back(ctx: CanvasRenderingContext2D): void {
-            if (this.cache) {
-                ctx.drawImage(this.cache, 0, 0);
-                return;
-            }
-            let sky = ctx.createLinearGradient(0, 0, 0, 192);
-            sky.addColorStop(0, "#002");
-            sky.addColorStop(1, "#224");
-            ctx.fillStyle = sky;
-            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-            this.platforms.forEach(platform => {
-                platform.render(ctx);
-            });
-            new Txt(new Vec(0, 0), 'Score').render(ctx);
-            new Txt(new Vec(120, 0), 'HP', 2).render(ctx);
-            new Txt(new Vec(231, 0), 'High').render(ctx);
-            this.cache = new Image();
-            this.cache.src = ctx.canvas.toDataURL();
-        }
-
         render(ctx: CanvasRenderingContext2D): void {
-            this.back(ctx);
+            this.planet.render(ctx);
             this.ship.render(ctx);
             if (this.loot) {
                 this.loot.render(ctx);
@@ -323,7 +305,8 @@ namespace Game {
         }
 
         move(item: Item) {
-            let collided = item.collided,
+            let platforms = this.planet.platforms,
+                collided = item.collided,
                 speed = item.speed,
                 pos = item.box.pos,
                 old = pos.clone();
@@ -336,7 +319,7 @@ namespace Game {
                 } else if (pos.x < 0) {
                     pos.x += this.width;
                 }
-                this.platforms.forEach(platform => {
+                platforms.forEach(platform => {
                     if (platform.box.test(item.box)) {
                         pos.x = old.x;
                         collided.x = 1;
@@ -345,7 +328,7 @@ namespace Game {
             }
             if (speed.y) {
                 pos.y += speed.y;
-                this.platforms.forEach(platform => {
+                platforms.forEach(platform => {
                     if (platform.box.test(item.box)) {
                         pos.y = old.y;
                         collided.y = 1;
