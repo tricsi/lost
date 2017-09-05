@@ -133,7 +133,7 @@ namespace Game {
                 part.box.pos.x = prev.box.pos.x;
                 if (part.box.test(prev.box)) {
                     if (complete) {
-                        ship.fuel = new Fuel();
+                        ship.fuel = new Fuel(ship);
                     } else {
                         part.box.pos = prev.box.pos.clone().sub(0, part.box.h);
                     }

@@ -25,8 +25,11 @@ namespace Game {
         speed: Vec = new Vec(0, .5);
         box: Box;
         
-        constructor() {
-            let x = Math.round(Math.random() * 30) * 8;
+        constructor(ship: Ship) {
+            let x;
+            do {
+                x = Math.round(Math.random() * 15) * 16;
+            } while (x == ship.box.pos.x);
             this.box = new Box(new Vec(x, 16), 16, 12);
         }
 
@@ -48,7 +51,7 @@ namespace Game {
         collided: Vec = new Vec(0, 0);
         speed: Vec = new Vec(0, -1);
         box: Box;
-        fuel: Fuel = new Fuel();
+        fuel: Fuel;
         fuels: number = 6;
         parts: Part[];
         status: number;
@@ -69,6 +72,7 @@ namespace Game {
                 new Part(pos2 || pos.clone(), 0),
             ];
             this.type = type;
+            this.fuel = new Fuel(this);
         }
         
         complete(): boolean {
