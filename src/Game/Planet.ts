@@ -30,48 +30,46 @@ namespace Game {
             Rand.seed = 72;
             ctx.fillStyle = '#000';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            this.renderStars(ctx, '#ddd');
-            this.renderSky(ctx, [34,34,68,0], [34,34,68,1]);
-            this.renderGround(ctx);
+            this.renderStars(ctx, 200, .5);
+            this.renderSky(ctx, [32,32,64,0]);
+            this.renderGround(ctx, '#000');
             this.txts.forEach(txt => txt.render(ctx));
             this.platforms.forEach(platform => platform.render(ctx));
             this.cache = new Image();
             this.cache.src = ctx.canvas.toDataURL();
         }
 
-        protected renderSky(ctx: CanvasRenderingContext2D, color1:number[], color2:number[]): void {
+        protected renderSky(ctx: CanvasRenderingContext2D, color:number[]): void {
             let canvas = ctx.canvas,
                 sky = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            sky.addColorStop(0, `rgba(${color1.join(',')})`);
-            sky.addColorStop(1, `rgba(${color2.join(',')})`);
+            sky.addColorStop(0, `rgba(${color.join(',')})`);
+            sky.addColorStop(1, `rgba(${color.slice(0,3).join(',')},1)`);
             ctx.fillStyle = sky;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
 
-        protected renderStars(ctx: CanvasRenderingContext2D, color: string): void {
-            ctx.fillStyle = color;
-            for (let i = 0; i < 40; i++) {
-                ctx.beginPath();
-                ctx.arc(Rand.get(255), Rand.get(192), Rand.get(1), 0, Math.PI * 2);
-                ctx.closePath();
-                ctx.fill();
+        protected renderStars(ctx: CanvasRenderingContext2D, count: number, alpha: number): void {
+            for (let i = 0; i < count; i++) {
+                let color = Rand.get(alpha);
+                ctx.fillStyle = `rgba(255,255,255,${color})`;
+                ctx.fillRect(Math.round(Rand.get(255)), Math.round(Rand.get(192)), 1, 1);
             }
         }
 
-        protected renderGround(ctx: CanvasRenderingContext2D): void {
+        protected renderGround(ctx: CanvasRenderingContext2D, color: string): void {
             let canvas = ctx.canvas,
                 i = 0,
                 x = 0,
                 w = canvas.width,
                 h = canvas.height,
-                y = h / 2;
+                y = h / 3 * 2;
             ctx.beginPath();
             ctx.moveTo(x, y + Rand.get(30));
             while (x < w) {
                 let x1 = x + Rand.get(30, 20),
                     x2 = x1 + Rand.get(30, 20),
-                    y1 = y + Rand.get(30),
-                    y2 = y + Rand.get(30);
+                    y1 = y + Rand.get(20),
+                    y2 = y + Rand.get(20);
                 ctx.lineTo(x1 < w ? x1 : w, y1);
                 ctx.lineTo(x2 < w ? x2 : w, y2);
                 //ctx.quadraticCurveTo(x1, y1, x2, y2);
@@ -80,7 +78,7 @@ namespace Game {
             ctx.lineTo(w, h);
             ctx.lineTo(0, h);
             ctx.closePath();
-            ctx.fillStyle = '#000';
+            ctx.fillStyle = color;
             ctx.fill();
         }
 
