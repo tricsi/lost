@@ -68,12 +68,13 @@ namespace Game {
             ctx.beginPath();
             ctx.moveTo(x, y + Rand.get(30));
             while (x < w) {
-                let x1 = x + Rand.get(20, 10),
-                    x2 = x1 + Rand.get(20, 10),
-                    y1 = Rand.get(30),
+                let x1 = x + Rand.get(30, 20),
+                    x2 = x1 + Rand.get(30, 20),
+                    y1 = y + Rand.get(30),
                     y2 = y + Rand.get(30);
-                ctx.lineTo(x2 < w ? x2 : w, y + Rand.get(30));
-                //ctx.quadraticCurveTo(x1, i % 2 ? y + y1: y - y1, x2, y2);
+                ctx.lineTo(x1 < w ? x1 : w, y1);
+                ctx.lineTo(x2 < w ? x2 : w, y2);
+                //ctx.quadraticCurveTo(x1, y1, x2, y2);
                 x = x2;
             }
             ctx.lineTo(w, h);
