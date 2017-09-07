@@ -107,7 +107,7 @@ namespace Game {
             Loot.sfx = new Sfx([0,,.11,,.19,.23,,.46,,,,,,.44,,.53,,,1,,,,,.5]);
             Ship.goSfx = new Sfx([3,,1,,1,.14,,.08,,,,,,,,,,,1,,,,,.5]);
             Ship.landSfx = new Sfx([3,,1,,1,.2,,.08,-.05,,,,,,,,,,1,,,,,.5]);
-            Ship.buildSfx = new Sfx([0,,.07,.55,.1,.54,,,,,,.35,.69,,,,,,1,,,,,.5]);
+            Ship.buildSfx = Menu.sfx = new Sfx([0,,.07,.55,.1,.54,,,,,,.35,.69,,,,,,1,,,,,.5]);
             for (let i = 48; i <= 64; i += 16) {
                 Enemy.sprites.push(
                     sprite.crop(0, i, 48, 16, ['f66', 'f6f', '66f', '6ff']),
