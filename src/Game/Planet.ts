@@ -31,6 +31,7 @@ namespace Game {
             ctx.fillStyle = '#000';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             this.renderStars(ctx, 200, .5);
+            this.renderMoon(ctx, 210, 100, 20, '#ccc');
             this.renderSky(ctx, [32,32,64,0]);
             this.renderGround(ctx, '#000');
             this.txts.forEach(txt => txt.render(ctx));
@@ -54,6 +55,14 @@ namespace Game {
                 ctx.fillStyle = `rgba(255,255,255,${color})`;
                 ctx.fillRect(Math.round(Rand.get(255)), Math.round(Rand.get(192)), 1, 1);
             }
+        }
+
+        protected renderMoon(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, color: string) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fill();
         }
 
         protected renderGround(ctx: CanvasRenderingContext2D, color: string): void {

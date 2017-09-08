@@ -8,7 +8,7 @@ namespace Game {
         color: number;
         invert: boolean;
 
-        constructor(x: number, y: number, text: string, color: number = 0, invert: boolean = false) {
+        constructor(x: number, y: number, text: string = '', color: number = 0, invert: boolean = false) {
             this.box = new Box(new Vec(x, y), 6, 7);
             this.text = text;
             this.color = color;

@@ -14,9 +14,9 @@ namespace Game {
         constructor(title: string, onstart: () => void) {
             this.title = new Txt(128 - (title.length * 3), 56, title, 0);
             this.items = [
-                new Txt(86, 80, 'Start New Game', 0),
-                new Txt(80, 96, 'Reset High Score', 0),
-                new Txt(92, 112, 'Sound FX  On', 0),
+                new Txt(86, 80, 'Start New Game'),
+                new Txt(80, 96, 'Reset High Score'),
+                new Txt(92, 112),
             ];
             this.hint = new Txt(8, 184, 'Move with arrow keys and fire with shift', 2);
             this.onstart = onstart;
@@ -28,8 +28,7 @@ namespace Game {
             if (e.type !== 'keydown') {
                 return;
             }
-            let active = this.items[this.active],
-                sfx = false;;
+            let sfx = false;;
             if (e.shiftKey) {
                 switch (this.active) {
                     case 0:
@@ -39,13 +38,8 @@ namespace Game {
                         Session.get().clear();
                         break;
                     case 2:
-                        if (Sfx.master.gain.value) {
-                            active.text = 'Sound FX Off';
-                            Sfx.master.gain.value = 0;
-                        } else {
-                            active.text = 'Sound FX  On';
-                            Sfx.master.gain.value = 1;
-                        }
+                        let gain = Sfx.master.gain;
+                        gain.value = gain.value ? 0 : 1;
                         break;
                 }
                 sfx = true;
@@ -75,6 +69,7 @@ namespace Game {
         }
 
         update(): void {
+            this.items[2].text = 'Sound FX ' + (Sfx.master.gain.value ? ' On' : 'Off');
             this.items.forEach((item, i) => {
                 item.invert = i == this.active && this.tick % 50 > 25;
             });
