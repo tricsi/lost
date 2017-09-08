@@ -37,6 +37,10 @@ namespace Game {
     function bind(): void {
         const keys = {};
         on(document, 'keydown', (e: KeyboardEvent) => {
+            if (e.keyCode == 27) {
+                start();
+                return;
+            }
             keys[e.keyCode] = true;
             scene.input(keys, e);
         });
@@ -47,7 +51,10 @@ namespace Game {
         on(window, 'resize', resize);
     }
 
-    function start(title: string): void {
+    function start(title: string = 'L  o  S  T'): void {
+        if (scene) {
+            scene.stop();
+        }
         scene = new Menu(title, () => {
             session.init();
             level = parseInt(location.search.substr(1)) || 0;
@@ -65,6 +72,7 @@ namespace Game {
         if (!(scene instanceof Menu) && !session.lives) {
             start('Game Over');
         } else if (scene.complete()) {
+            scene.stop();
             switch(++level % 8) {
                 case 1: scene = new Scene1(level); break;
                 case 2: scene = new Scene2(level); break;
@@ -121,7 +129,7 @@ namespace Game {
                 );
             }
             resize();
-            start('L o S T');
+            start();
             bind();
             update();
         });

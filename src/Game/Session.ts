@@ -27,8 +27,13 @@ namespace Game {
         }
 
         init() {
-            this.lives = 4;
+            this.lives = 3;
             this.score = 0;
+        }
+
+        clear() {
+            this.high = 0;
+            localStorage.setItem(Session.store, null);
         }
 
         add(score: number): void {

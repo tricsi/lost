@@ -36,7 +36,7 @@ namespace Game {
             top *= h;
             left += w * frame;
             ctx.drawImage(this.img, left, top, w, h, x, y, w, h);
-            if (x + w > this.width) {
+            if (x + w >= this.width) {
                 ctx.drawImage(this.img, left, top, w, h, x - this.width, y, w, h);
             }
         }

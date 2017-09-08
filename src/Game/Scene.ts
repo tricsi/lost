@@ -6,6 +6,7 @@ namespace Game {
         render(ctx: CanvasRenderingContext2D): void;
         update(): void;
         complete(): boolean;
+        stop(): void;
 
     }
 
@@ -29,6 +30,10 @@ namespace Game {
                 : new Ship(type, new Vec(160, 136), new Vec(128, 80), new Vec(48, 56));
             this.level = level;
             this.planet = new Planet();
+        }
+
+        stop() {
+            this.hero.mute();
         }
 
         complete(): boolean {
@@ -268,11 +273,11 @@ namespace Game {
                 bb = b.box.clone(),
                 retest = false;
             if (!ab.test(bb)) {
-                if (ab.pos.x + ab.w > width) {
+                if (ab.pos.x + ab.w >= width) {
                     ab.pos.x -= width;
                     retest = true;
                 }
-                if (bb.pos.x + bb.w > width) {
+                if (bb.pos.x + bb.w >= width) {
                     bb.pos.x -= width;
                     retest = true;
                 }
@@ -314,7 +319,7 @@ namespace Game {
             collided.y = 0;
             if (speed.x) {
                 pos.x += speed.x;
-                if (pos.x > this.width) {
+                if (pos.x >= this.width) {
                     pos.x -= this.width;
                 } else if (pos.x < 0) {
                     pos.x += this.width;
