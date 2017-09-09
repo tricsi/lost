@@ -15,7 +15,7 @@ namespace Game {
         static sprite: Sprite;
         level: number;
         tick: number = 1;
-        hero: Hero = new Hero(96, 160);
+        hero: Hero;
         ship: Ship;
         loot: Loot = null;
         width: number = 256;
@@ -343,6 +343,7 @@ namespace Game {
 
         constructor(level: number) {
             super(level);
+            this.hero = new Hero(96, 160);
             this.ship = new Ship(level, new Vec(160, 136), new Vec(128, 80), new Vec(48, 56));
             this.planet = new Planet(643, [
                 new Platform(32, 72, 48, 1),
@@ -373,11 +374,12 @@ namespace Game {
 
         constructor(level: number) {
             super(level);
-            this.ship = new Ship(level, new Vec(160, -120));
+            this.hero = new Hero(96, 160);
+            this.ship = new Ship(level, new Vec(136, -120));
             this.planet = new Planet(713, [
-                new Platform(32, 72, 48, 3),
-                new Platform(120, 96, 32, 3),
-                new Platform(192, 48, 48, 3),
+                new Platform(48, 96, 64, 3),
+                new Platform(200, 48, 32, 3),
+                new Platform(184, 112, 56, 3),
             ], [128, 64, 0, .5], '#500', 0, ['#cfc', '#ccf']);
             this.enemies = new Spawner(() => {
                 return new Enemy(.5, Rand.get() < .5 ? -.5 : .5, 7);
@@ -389,11 +391,12 @@ namespace Game {
 
         constructor(level: number) {
             super(level);
-            this.ship = new Ship(level, new Vec(160, -120));
+            this.hero = new Hero(160, 160);
+            this.ship = new Ship(level, new Vec(96, -120));
             this.planet = new Planet(835, [
-                new Platform(32, 72, 48, 4),
-                new Platform(120, 96, 32, 4),
-                new Platform(192, 48, 48, 4),
+                new Platform(32, 48, 48, 4),
+                new Platform(120, 64, 32, 4),
+                new Platform(192, 96, 48, 4),
             ], [40,40,40,0], '#555', 200, ['#06c']);
             this.enemies = new Spawner(() => {
                 return new Enemy(.5, 0, 6);
@@ -414,11 +417,12 @@ namespace Game {
 
         constructor(level: number) {
             super(level);
+            this.hero = new Hero(96, 160);
             this.ship = new Ship(level, new Vec(160, -120));
             this.planet = new Planet(449, [
-                new Platform(32, 72, 48, 0),
-                new Platform(120, 96, 32, 0),
-                new Platform(192, 48, 48, 0),
+                new Platform(32, 96, 32, 0),
+                new Platform(96, 48, 48, 0),
+                new Platform(192, 80, 48, 0),
             ], [128, 128, 255, .5], '#ccc', 200, []);
             this.enemies = new Spawner(() => {
                 return new Enemy(0, 0, 1);
@@ -448,11 +452,12 @@ namespace Game {
         
         constructor(level: number) {
             super(level);
-            this.ship = new Ship(level, new Vec(160, 136), new Vec(128, 80), new Vec(48, 56));
+            this.hero = new Hero(160, 160);
+            this.ship = new Ship(level, new Vec(120, 136), new Vec(212, 80), new Vec(48, 64));
             this.planet = new Planet(346, [
-                new Platform(32, 72, 48, 1),
-                new Platform(120, 96, 32, 1),
-                new Platform(192, 48, 48, 1),
+                new Platform(32, 80, 56, 1),
+                new Platform(152, 56, 32, 1),
+                new Platform(204, 96, 32, 1),
             ], [40,160,160,.5], '#060', 0, ['#fff']);
             this.enemies = new Spawner(() => {
                 return new Enemy(.5, -.5, 4);
@@ -473,11 +478,12 @@ namespace Game {
 
         constructor(level: number) {
             super(level);
-            this.ship = new Ship(level, new Vec(160, -120));
+            this.hero = new Hero(160, 160);
+            this.ship = new Ship(level, new Vec(96, -120));
             this.planet = new Planet(549, [
-                new Platform(32, 72, 48, 2),
+                new Platform(32, 48, 48, 2),
                 new Platform(120, 96, 32, 2),
-                new Platform(192, 48, 48, 2),
+                new Platform(192, 72, 48, 2),
             ], [240,160,40,.5], '#960', 0, ['#f90']);
             this.enemies = new Spawner(() => {
                 return new Enemy(.5, Rand.get() < .5 ? -.7 : .7, 5);
@@ -490,11 +496,12 @@ namespace Game {
         
         constructor(level: number) {
             super(level);
-            this.ship = new Ship(level, new Vec(160, -120));
+            this.hero = new Hero(80, 160);
+            this.ship = new Ship(level, new Vec(135, -120));
             this.planet = new Planet(897, [
-                new Platform(32, 72, 48, 5),
-                new Platform(120, 96, 32, 5),
-                new Platform(192, 48, 48, 5),
+                new Platform(32, 56, 32, 5),
+                new Platform(56, 104, 48, 5),
+                new Platform(176, 72, 56, 5),
             ], [40,80,40,0], '#000', 200, ['#666', '#999', '#ccc']);
             this.enemies = new Spawner(() => {
                 return new Enemy(.7, Rand.get() / 2 -.25, 2);
@@ -506,10 +513,11 @@ namespace Game {
 
         constructor(level: number) {
             super(level);
-            this.ship = new Ship(level, new Vec(160, -120));
+            this.hero = new Hero(144, 160);
+            this.ship = new Ship(level, new Vec(80, -120));
             this.planet = new Planet(336, [
-                new Platform(32, 72, 48, 6),
-                new Platform(120, 96, 32, 6),
+                new Platform(32, 96, 32, 6),
+                new Platform(104, 80, 48, 6),
                 new Platform(192, 48, 48, 6),
             ], [40,200,200,0], '#000', 200, []);
             this.enemies = new Spawner(() => {
