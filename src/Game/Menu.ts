@@ -5,10 +5,10 @@ namespace Game {
         static sfx: Sfx;
         tick: number = 0;
         active: number = 0;
-        planet: Planet = new Planet(false);
         title: Txt;
         items: Txt[];
         hint: Txt;
+        planet: Planet = new Planet(643, 0);
         onstart: () => void;
 
         constructor(title: string, onstart: () => void) {

@@ -20,7 +20,7 @@ namespace Game {
         loot: Loot = null;
         width: number = 256;
         bumms: Bumm[] = [];
-        planet: Planet;
+        planet: Planet = new Planet(713, 3, [80, 40, 0, .5], '#300', 0, ['#cfc', '#ccf']);
         enemies: Spawner;
 
         constructor(level: number) {
@@ -29,7 +29,6 @@ namespace Game {
                 ? new Ship(type, new Vec(160, -120))
                 : new Ship(type, new Vec(160, 136), new Vec(128, 80), new Vec(48, 56));
             this.level = level;
-            this.planet = new Planet();
         }
 
         stop() {

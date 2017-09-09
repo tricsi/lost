@@ -2,72 +2,82 @@ namespace Game {
 
     export class Planet {
 
-        cache: HTMLImageElement;
+        seed: number;
         txts: Txt[];
         platforms: Platform[];
+        cache: HTMLImageElement;
+        sky: number[];
+        rocks: string;
+        stars: number;
+        moons: string[];
 
-        constructor(platforms: boolean = true) {
+        constructor(
+            seed: number = 0,
+            platform: number = 1,
+            sky: number[] = [32,32,64,0],
+            rocks: string = '#000',
+            stars: number = 200,
+            moons: string[] = ['#ccc'],
+            ground: number = 0
+        ) {
+            this.seed = seed || Math.round(Rand.get(1000));
+            //console.log(this.seed);
+            this.sky = sky;
+            this.rocks = rocks;
+            this.stars = stars;
+            this.moons = moons;
             this.txts = [
                 new Txt(0, 0, 'Score'),
                 new Txt(120, 0, 'HP', 2),
                 new Txt(231, 0, 'High'),
             ];
-            this.platforms = platforms ? [
+            this.platforms = platform ? [
                 new Platform(-50, 8, 350, -1),
-                new Platform(-50, 184, 350, 2),
-                new Platform(32, 72, 48, 1),
-                new Platform(120, 96, 32, 1),
-                new Platform(192, 48, 48, 1),
+                new Platform(-50, 184, 350, ground || platform),
+                new Platform(32, 72, 48, platform),
+                new Platform(120, 96, 32, platform),
+                new Platform(192, 48, 48, platform),
             ] : [];
         }
 
         render(ctx: CanvasRenderingContext2D): void {
-            let canvas = ctx.canvas;
             if (this.cache) {
                 ctx.drawImage(this.cache, 0, 0);
                 return;
             }
-            Rand.seed = 72;
+            let canvas = ctx.canvas;
             ctx.fillStyle = '#000';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            this.renderStars(ctx, 200, .5);
-            this.renderMoon(ctx, 210, 100, 20, '#ccc');
-            this.renderSky(ctx, [32,32,64,0]);
-            this.renderGround(ctx, '#000');
-            this.txts.forEach(txt => txt.render(ctx));
-            this.platforms.forEach(platform => platform.render(ctx));
-            this.cache = new Image();
-            this.cache.src = ctx.canvas.toDataURL();
-        }
+            Rand.seed = this.seed;
 
-        protected renderSky(ctx: CanvasRenderingContext2D, color:number[]): void {
-            let canvas = ctx.canvas,
-                sky = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            sky.addColorStop(0, `rgba(${color.join(',')})`);
-            sky.addColorStop(1, `rgba(${color.slice(0,3).join(',')},1)`);
-            ctx.fillStyle = sky;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
-
-        protected renderStars(ctx: CanvasRenderingContext2D, count: number, alpha: number): void {
-            for (let i = 0; i < count; i++) {
-                let color = Rand.get(alpha);
+            //stars
+            for (let i = 0; i < this.stars; i++) {
+                let color = Rand.get(.5);
                 ctx.fillStyle = `rgba(255,255,255,${color})`;
                 ctx.fillRect(Math.round(Rand.get(255)), Math.round(Rand.get(192)), 1, 1);
             }
-        }
 
-        protected renderMoon(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, color: string) {
-            ctx.fillStyle = color;
-            ctx.beginPath();
-            ctx.arc(x, y, r, 0, Math.PI * 2);
-            ctx.closePath();
-            ctx.fill();
-        }
+            //moons
+            this.moons.forEach(color => {
+                let x = Rand.get(200, 40),
+                    y = Rand.get(130, 80),
+                    r = Rand.get(40, 10);
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.fill();
+            });
 
-        protected renderGround(ctx: CanvasRenderingContext2D, color: string): void {
-            let canvas = ctx.canvas,
-                i = 0,
+            //sky
+            let sky = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            sky.addColorStop(0, `rgba(${this.sky.join(',')})`);
+            sky.addColorStop(1, `rgba(${this.sky.slice(0,3).join(',')},1)`);
+            ctx.fillStyle = sky;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            //rocks
+            let i = 0,
                 x = 0,
                 w = canvas.width,
                 h = canvas.height,
@@ -81,14 +91,18 @@ namespace Game {
                     y2 = y + Rand.get(20);
                 ctx.lineTo(x1 < w ? x1 : w, y1);
                 ctx.lineTo(x2 < w ? x2 : w, y2);
-                //ctx.quadraticCurveTo(x1, y1, x2, y2);
                 x = x2;
             }
             ctx.lineTo(w, h);
             ctx.lineTo(0, h);
             ctx.closePath();
-            ctx.fillStyle = color;
+            ctx.fillStyle = this.rocks;
             ctx.fill();
+
+            this.txts.forEach(txt => txt.render(ctx));
+            this.platforms.forEach(platform => platform.render(ctx));
+            this.cache = new Image();
+            this.cache.src = ctx.canvas.toDataURL();
         }
 
     }

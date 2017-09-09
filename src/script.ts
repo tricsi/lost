@@ -100,7 +100,7 @@ namespace Game {
             Hero.sprite = sprite.crop(0, 0, 64, 48);
             Hero.jetSprite = sprite.crop(64, 0, 48, 48, ['fc0']);
             Bumm.sprite = sprite.crop(0, 152, 48, 16, ['fc0']);
-            Platform.sprite = sprite.crop(0, 80, 24, 8, ['0c0', 'fc0']);
+            Platform.sprite = sprite.crop(0, 80, 24, 8, ['0c0', 'fc0', '930']);
             Laser.sprite1 = sprite.crop(0, 180, 112, 1, ['f6f', 'f66', '6ff']);
             Laser.sprite2 = sprite.crop(0, 180, 112, 1, ['f6f', 'f66', '6ff'], true);
             Loot.sprite = sprite.crop(16, 168, 80, 12, ['f00', '0ff', 'ff0']);
