@@ -58,8 +58,21 @@ namespace Game {
         scene = new Menu(title, () => {
             session.init();
             level = parseInt(location.search.substr(1)) || 0;
-            scene = new Scene0(level);
+            scene = factory(level);
         });
+    }
+
+    function factory(level): Scene {
+        switch(level % 8) {
+            case 1: return new Scene1(level);
+            case 2: return new Scene2(level);
+            case 3: return new Scene3(level);
+            case 4: return new Scene4(level);
+            case 5: return new Scene5(level);
+            case 6: return new Scene6(level);
+            case 7: return new Scene7(level);
+        }
+        return new Scene0(level);
     }
 
     function update(): void {
@@ -72,17 +85,7 @@ namespace Game {
         if (!(scene instanceof Menu) && !session.lives) {
             start('Game Over');
         } else if (scene.complete()) {
-            scene.stop();
-            switch(++level % 8) {
-                case 1: scene = new Scene1(level); break;
-                case 2: scene = new Scene2(level); break;
-                case 3: scene = new Scene3(level); break;
-                case 4: scene = new Scene4(level); break;
-                case 5: scene = new Scene5(level); break;
-                case 6: scene = new Scene6(level); break;
-                case 7: scene = new Scene7(level); break;
-                default: scene = new Scene0(level);
-            }
+            scene = factory(++level);
         }
         scene.update();
         scene.render(ctx);
@@ -100,7 +103,7 @@ namespace Game {
             Hero.sprite = sprite.crop(0, 0, 64, 48);
             Hero.jetSprite = sprite.crop(64, 0, 48, 48, ['fc0']);
             Bumm.sprite = sprite.crop(0, 152, 48, 16, ['fc0']);
-            Platform.sprite = sprite.crop(0, 80, 24, 8, ['0c0', 'fc0', '930']);
+            Platform.sprite = sprite.crop(0, 80, 24, 8, ['0c0', 'fc0', '930', '999', '0c9', 'c09']);
             Laser.sprite1 = sprite.crop(0, 180, 112, 1, ['f6f', 'f66', '6ff']);
             Laser.sprite2 = sprite.crop(0, 180, 112, 1, ['f6f', 'f66', '6ff'], true);
             Loot.sprite = sprite.crop(16, 168, 80, 12, ['f00', '0ff', 'ff0']);

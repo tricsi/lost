@@ -8,7 +8,7 @@ namespace Game {
         title: Txt;
         items: Txt[];
         hint: Txt;
-        planet: Planet = new Planet(643, 0);
+        planet: Planet = new Planet(643, [], [32,32,64,0], '#000', 200, ['#ccc']);
         onstart: () => void;
 
         constructor(title: string, onstart: () => void) {

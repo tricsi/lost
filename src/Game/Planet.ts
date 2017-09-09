@@ -13,7 +13,7 @@ namespace Game {
 
         constructor(
             seed: number = 0,
-            platform: number = 1,
+            platforms: Platform[] = [],
             sky: number[] = [32,32,64,0],
             rocks: string = '#000',
             stars: number = 200,
@@ -31,13 +31,13 @@ namespace Game {
                 new Txt(120, 0, 'HP', 2),
                 new Txt(231, 0, 'High'),
             ];
-            this.platforms = platform ? [
-                new Platform(-50, 8, 350, -1),
-                new Platform(-50, 184, 350, ground || platform),
-                new Platform(32, 72, 48, platform),
-                new Platform(120, 96, 32, platform),
-                new Platform(192, 48, 48, platform),
-            ] : [];
+            this.platforms = platforms;
+            if (platforms.length) {
+                platforms.unshift(
+                    new Platform(-50, 184, 350, ground || platforms[0].color),
+                    new Platform(-50, 8, 350, -1)
+                );
+            }
         }
 
         render(ctx: CanvasRenderingContext2D): void {

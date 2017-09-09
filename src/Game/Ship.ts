@@ -58,7 +58,7 @@ namespace Game {
         tick: number = 0;
         type: number;
 
-        constructor(type: number, pos: Vec, pos1: Vec = null, pos2: Vec = null) {
+        constructor(level: number, pos: Vec, pos1: Vec = null, pos2: Vec = null) {
             this.box = new Box(pos, 16, 48);
             if (pos1) {
                 this.status = 1;
@@ -71,7 +71,7 @@ namespace Game {
                 new Part(pos1 || pos.clone().add(0, 16), 1),
                 new Part(pos2 || pos.clone(), 0),
             ];
-            this.type = type;
+            this.type = Math.floor(level / 4) % 4;
             this.fuel = new Fuel(this);
         }
         

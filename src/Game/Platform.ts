@@ -7,7 +7,12 @@ namespace Game {
         color: number;
 
         constructor(x: number, y: number, width: number, color: number = 0) {
-            this.box = new Box(new Vec(x, y), width, 8);
+            let w = Math.round(Rand.get(1, -1));
+            if (!y) {
+                x -= w * 8;
+                y = Math.round(Rand.get(10, 6)) * 8
+            }
+            this.box = new Box(new Vec(x, y), width || (w + 5) * 8, 8);
             this.color = color;
         }
 

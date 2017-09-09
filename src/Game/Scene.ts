@@ -20,14 +20,10 @@ namespace Game {
         loot: Loot = null;
         width: number = 256;
         bumms: Bumm[] = [];
-        planet: Planet = new Planet(713, 3, [80, 40, 0, .5], '#300', 0, ['#cfc', '#ccf']);
+        planet: Planet;
         enemies: Spawner;
 
         constructor(level: number) {
-            let type = Math.floor(level / 4) % 4;
-            this.ship = level % 4
-                ? new Ship(type, new Vec(160, -120))
-                : new Ship(type, new Vec(160, 136), new Vec(128, 80), new Vec(48, 56));
             this.level = level;
         }
 
@@ -347,6 +343,12 @@ namespace Game {
 
         constructor(level: number) {
             super(level);
+            this.ship = new Ship(level, new Vec(160, 136), new Vec(128, 80), new Vec(48, 56));
+            this.planet = new Planet(643, [
+                new Platform(32, 72, 48, 1),
+                new Platform(120, 96, 32, 1),
+                new Platform(192, 48, 48, 1),
+            ], [32,32,64,0], '#000', 200, ['#ccc'], 2);
             this.enemies = new Spawner(() => {
                 return new Enemy(.5, Rand.get() / 2 -.25, 0);
             });
@@ -371,6 +373,12 @@ namespace Game {
 
         constructor(level: number) {
             super(level);
+            this.ship = new Ship(level, new Vec(160, -120));
+            this.planet = new Planet(713, [
+                new Platform(32, 72, 48, 3),
+                new Platform(120, 96, 32, 3),
+                new Platform(192, 48, 48, 3),
+            ], [128, 64, 0, .5], '#500', 0, ['#cfc', '#ccf']);
             this.enemies = new Spawner(() => {
                 return new Enemy(.5, Rand.get() < .5 ? -.5 : .5, 7);
             });
@@ -378,9 +386,15 @@ namespace Game {
     }
 
     export class Scene2 extends Scene {
-        
+
         constructor(level: number) {
             super(level);
+            this.ship = new Ship(level, new Vec(160, -120));
+            this.planet = new Planet(835, [
+                new Platform(32, 72, 48, 4),
+                new Platform(120, 96, 32, 4),
+                new Platform(192, 48, 48, 4),
+            ], [40,40,40,0], '#555', 200, ['#06c']);
             this.enemies = new Spawner(() => {
                 return new Enemy(.5, 0, 6);
             });
@@ -397,9 +411,15 @@ namespace Game {
     }
     
     export class Scene3 extends Scene {
-        
+
         constructor(level: number) {
             super(level);
+            this.ship = new Ship(level, new Vec(160, -120));
+            this.planet = new Planet(449, [
+                new Platform(32, 72, 48, 0),
+                new Platform(120, 96, 32, 0),
+                new Platform(192, 48, 48, 0),
+            ], [128, 128, 255, .5], '#ccc', 200, []);
             this.enemies = new Spawner(() => {
                 return new Enemy(0, 0, 1);
             });
@@ -428,6 +448,12 @@ namespace Game {
         
         constructor(level: number) {
             super(level);
+            this.ship = new Ship(level, new Vec(160, 136), new Vec(128, 80), new Vec(48, 56));
+            this.planet = new Planet(346, [
+                new Platform(32, 72, 48, 1),
+                new Platform(120, 96, 32, 1),
+                new Platform(192, 48, 48, 1),
+            ], [40,160,160,.5], '#060', 0, ['#fff']);
             this.enemies = new Spawner(() => {
                 return new Enemy(.5, -.5, 4);
             });
@@ -447,6 +473,12 @@ namespace Game {
 
         constructor(level: number) {
             super(level);
+            this.ship = new Ship(level, new Vec(160, -120));
+            this.planet = new Planet(549, [
+                new Platform(32, 72, 48, 2),
+                new Platform(120, 96, 32, 2),
+                new Platform(192, 48, 48, 2),
+            ], [240,160,40,.5], '#960', 0, ['#f90']);
             this.enemies = new Spawner(() => {
                 return new Enemy(.5, Rand.get() < .5 ? -.7 : .7, 5);
             });
@@ -458,6 +490,12 @@ namespace Game {
         
         constructor(level: number) {
             super(level);
+            this.ship = new Ship(level, new Vec(160, -120));
+            this.planet = new Planet(897, [
+                new Platform(32, 72, 48, 5),
+                new Platform(120, 96, 32, 5),
+                new Platform(192, 48, 48, 5),
+            ], [40,80,40,0], '#000', 200, ['#666', '#999', '#ccc']);
             this.enemies = new Spawner(() => {
                 return new Enemy(.7, Rand.get() / 2 -.25, 2);
             });
@@ -465,9 +503,15 @@ namespace Game {
     }
 
     export class Scene7 extends Scene4 {
-        
+
         constructor(level: number) {
             super(level);
+            this.ship = new Ship(level, new Vec(160, -120));
+            this.planet = new Planet(336, [
+                new Platform(32, 72, 48, 6),
+                new Platform(120, 96, 32, 6),
+                new Platform(192, 48, 48, 6),
+            ], [40,200,200,0], '#000', 200, []);
             this.enemies = new Spawner(() => {
                 return new Enemy(.5, -.5, 3);
             });
