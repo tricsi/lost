@@ -2,7 +2,6 @@ namespace Game {
 
     export class Planet {
 
-        seed: number;
         txts: Txt[];
         platforms: Platform[];
         cache: HTMLImageElement;
@@ -12,7 +11,6 @@ namespace Game {
         moons: string[];
 
         constructor(
-            seed: number = 0,
             platforms: Platform[] = [],
             sky: number[] = [32,32,64,0],
             rocks: string = '#000',
@@ -20,8 +18,6 @@ namespace Game {
             moons: string[] = ['#ccc'],
             ground: number = 0
         ) {
-            this.seed = seed || Math.round(Rand.get(1000));
-            //console.log(this.seed);
             this.sky = sky;
             this.rocks = rocks;
             this.stars = stars;
@@ -48,7 +44,6 @@ namespace Game {
             let canvas = ctx.canvas;
             ctx.fillStyle = '#000';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            Rand.seed = this.seed;
 
             //stars
             for (let i = 0; i < this.stars; i++) {

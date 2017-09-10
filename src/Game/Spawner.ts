@@ -8,9 +8,12 @@ namespace Game {
         index: number = 0;
         factory: (index: number) => Item;
 
-        constructor(factory: (index: number) => Item, freq: number = 64, limit: number = 4) {
-            this.freq = freq;
-            this.limit = limit;
+        constructor(factory: (index: number) => Item, level: number = 0) {
+            let replay = Math.floor(level / 8),
+                freq = 64 - level,
+                limit = 4 + replay;
+            this.freq = freq < 8 ? 8 : freq;
+            this.limit = limit < 8 ? limit : 8;
             this.factory = factory;
         }
 

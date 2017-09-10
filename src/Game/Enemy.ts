@@ -14,9 +14,9 @@ namespace Game {
         box: Box;
 
         constructor(sx: number, sy:number, type: number) {
-            this.flip = Rand.get() < .5;
+            this.flip = Math.random() < .5;
             let x = this.flip ? 240 : 0,
-                y = Math.round(Rand.get(136)) + 32;
+                y = Math.round(Math.random() * 136) + 32;
             this.box = new Box(new Vec(x, y), 16, 16);
             this.speed = new Vec(this.flip ? -sx : sx, sy);
             this.color = Enemy.count++ % 4 + 1;

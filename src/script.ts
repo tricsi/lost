@@ -12,7 +12,7 @@ namespace Game {
 
     export class Rand {
 
-        static seed: number = Math.round(Math.random() * 1000);
+        static seed: number = Math.random();
 
         static get(max: number = 1, min: number = 0): number {
             Rand.seed = (Rand.seed * 9301 + 49297) % 233280;
@@ -82,7 +82,7 @@ namespace Game {
         if (!Sprite.ready() || !Sfx.ready()) {
             return;
         }
-        if (!(scene instanceof Menu) && !session.lives) {
+        if (scene instanceof Scene && !session.lives && scene.hero.tick > -120) {
             start('Game Over');
         } else if (scene.complete()) {
             scene = factory(++level);
