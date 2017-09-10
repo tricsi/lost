@@ -66,12 +66,12 @@ namespace Game {
             if (hero.inactive()){
                 return;
             }
-            hero.shoot = e.shiftKey;
-            hero.speed.y = keys[38] || keys[87] || keys[90] ? -1 : 1;
-            if (keys[37] || keys[65] || keys[81]) {
+            hero.shoot = e.ctrlKey;
+            hero.speed.y = keys[38] ? -1 : 1;
+            if (keys[37]) {
                 hero.speed.x = -1;
                 hero.face = 0;
-            } else if (keys[39] || keys[68]) {
+            } else if (keys[39]) {
                 hero.speed.x = 1;
                 hero.face = 1;
             } else {

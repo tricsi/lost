@@ -18,7 +18,7 @@ namespace Game {
                 new Txt(80, 96, 'Reset High Score'),
                 new Txt(92, 112),
             ];
-            this.hint = new Txt(8, 184, 'Move with arrow keys and fire with shift', 2);
+            this.hint = new Txt(8, 184, 'Move with Arrow keys and fire with CTRL', 2);
             this.onstart = onstart;
         }
 
@@ -29,7 +29,7 @@ namespace Game {
                 return;
             }
             let sfx = false;;
-            if (e.shiftKey) {
+            if (e.ctrlKey) {
                 switch (this.active) {
                     case 0:
                         this.onstart();
@@ -43,12 +43,12 @@ namespace Game {
                         break;
                 }
                 sfx = true;
-            } else if (keys[38] || keys[87] || keys[90]) {
+            } else if (keys[38]) {
                 if (--this.active < 0) {
                     this.active += this.items.length;
                 }
                 sfx = true;
-            } else if (keys[40] || keys[83]) {
+            } else if (keys[40]) {
                 if (++this.active >= this.items.length) {
                     this.active -= this.items.length;
                 }
