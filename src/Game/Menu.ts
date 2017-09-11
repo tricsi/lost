@@ -29,7 +29,7 @@ namespace Game {
                 return;
             }
             let sfx = false;;
-            if (e.shiftKey || e.ctrlKey) {
+            if (e.shiftKey || e.ctrlKey || keys[32]) {
                 switch (this.active) {
                     case 0:
                         this.onstart();

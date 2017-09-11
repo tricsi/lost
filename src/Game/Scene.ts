@@ -66,7 +66,7 @@ namespace Game {
             if (hero.inactive()){
                 return;
             }
-            hero.shoot = e.shiftKey || e.ctrlKey;
+            hero.shoot = e.shiftKey || e.ctrlKey || keys[32];
             hero.speed.y = keys[38] || keys[87] || keys[90] ? -1 : 1;
             if (keys[37] || keys[65] || keys[81]) {
                 hero.speed.x = -1;
