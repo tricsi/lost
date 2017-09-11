@@ -2,7 +2,7 @@ namespace Game {
 
     export interface SceneInterface {
 
-        input(keys: object, e: KeyboardEvent): void;
+        input(keys: object, down: boolean): void;
         render(ctx: CanvasRenderingContext2D): void;
         update(): void;
         complete(): boolean;
@@ -61,12 +61,12 @@ namespace Game {
             });
         }
 
-        input(keys: object, e: KeyboardEvent): void {
+        input(keys: object, down: boolean): void {
             const hero = this.hero;
             if (hero.inactive()){
                 return;
             }
-            hero.shoot = e.shiftKey || e.ctrlKey || keys[32];
+            hero.shoot = keys[0];
             hero.speed.y = keys[38] || keys[87] || keys[90] ? -1 : 1;
             if (keys[37] || keys[65] || keys[81]) {
                 hero.speed.x = -1;

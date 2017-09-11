@@ -23,6 +23,7 @@ namespace Game {
     
     let canvas: HTMLCanvasElement,
         ctx: CanvasRenderingContext2D,
+        keys: object = {},
         scene: SceneInterface,
         level: number,
         session: Session;
@@ -35,7 +36,6 @@ namespace Game {
     }
     
     function bind(): void {
-        const keys = {};
         on(document, 'keydown', (e: KeyboardEvent) => {
             if (e.keyCode == 27) {
                 if (scene instanceof Scene) {
@@ -44,13 +44,49 @@ namespace Game {
                 return;
             }
             keys[e.keyCode] = true;
-            scene.input(keys, e);
+            keys[0] = keys[32] || e.shiftKey || e.ctrlKey;
+            scene.input(keys, true);
         });
         on(document, 'keyup', (e: KeyboardEvent) => {
             keys[e.keyCode] = false;
-            scene.input(keys, e);
+            keys[0] = keys[32] || e.shiftKey || e.ctrlKey;
+            scene.input(keys, false);
         });
         on(window, 'resize', resize);
+    }
+    
+    function gamepad() {
+        let device = navigator.getGamepads()[0];
+        if (device) {
+            let k = {'0':false},
+                min = .25;
+            device.axes.forEach((val, i) => {
+                if (i % 2) {
+                    k[40] = k[40] || val > min;
+                    k[38] = k[38] || val < -min;
+                } else {
+                    k[39] = k[39] || val > min;
+                    k[37] = k[37] || val < -min;
+                }
+            });
+            device.buttons.forEach((button, i) => {
+                if (button.pressed) {
+                    switch (i) {
+                        case 12: k[38] = true; break;
+                        case 13: k[40] = true; break;
+                        case 14: k[37] = true; break;
+                        case 15: k[39] = true; break;
+                        default: k[0] = true;
+                    }
+                }
+            });
+            for (let i in k) {
+                if ((keys[i] && !k[i]) || (!keys[i] && k[i])) {
+                    keys[i] = k[i];
+                    scene.input(keys, k[i]);
+                }
+            }
+        }
     }
 
     function start(title: string = 'L  o  S  T'): void {
@@ -91,6 +127,7 @@ namespace Game {
         }
         scene.update();
         scene.render(ctx);
+        gamepad();
     }
 
     on(window, 'load', () => {

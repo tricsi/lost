@@ -24,12 +24,12 @@ namespace Game {
 
         stop() {};
 
-        input(keys: object, e: KeyboardEvent): void {
-            if (e.type !== 'keydown') {
+        input(keys: object, down: boolean): void {
+            if (!down) {
                 return;
             }
             let sfx = false;;
-            if (e.shiftKey || e.ctrlKey || keys[32]) {
+            if (keys[0]) {
                 switch (this.active) {
                     case 0:
                         this.onstart();
