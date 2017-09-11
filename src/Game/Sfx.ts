@@ -13,7 +13,7 @@ namespace Game {
             Sfx.load++;
             const data = jsfxr(config);
             if (!Sfx.ctx) {
-                Sfx.ctx = AudioContext ? new AudioContext() : new (window as any).webkitAudioContext();
+                Sfx.ctx = (window as any).AudioContext ? new AudioContext() : new (window as any).webkitAudioContext();
                 Sfx.master = Sfx.ctx.createGain();
                 Sfx.master.connect(Sfx.ctx.destination);
             }
