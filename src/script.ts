@@ -38,7 +38,9 @@ namespace Game {
         const keys = {};
         on(document, 'keydown', (e: KeyboardEvent) => {
             if (e.keyCode == 27) {
-                start();
+                if (scene instanceof Scene) {
+                    start();
+                }
                 return;
             }
             keys[e.keyCode] = true;
@@ -89,7 +91,6 @@ namespace Game {
         }
         scene.update();
         scene.render(ctx);
-        session.render(ctx);
     }
 
     on(window, 'load', () => {
