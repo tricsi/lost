@@ -44,17 +44,27 @@ namespace Game {
                 return;
             }
             keys[e.keyCode] = true;
-            keys[0] = keys[32] || e.shiftKey || e.ctrlKey;
+            keys[0] = keys[13] || keys[32] || e.shiftKey || e.ctrlKey;
             scene.input(keys, true);
         });
         on(document, 'keyup', (e: KeyboardEvent) => {
             keys[e.keyCode] = false;
-            keys[0] = keys[32] || e.shiftKey || e.ctrlKey;
+            keys[0] = keys[13] || keys[32] || e.shiftKey || e.ctrlKey;
             scene.input(keys, false);
         });
         on(window, 'resize', resize);
     }
     
+    export function fullscreen() {
+        if (!document.webkitFullscreenElement) {
+            document.documentElement.webkitRequestFullscreen();
+            canvas.requestPointerLock();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+            document.exitPointerLock();
+        }
+    }
+
     function gamepad() {
         let device = navigator.getGamepads()[0];
         if (device) {
@@ -113,10 +123,14 @@ namespace Game {
         return new Scene0(level);
     }
 
-    function update(): void {
+    function render(): void {
         requestAnimationFrame(() => {
-            update();
+            render();
         });
+        scene.render(ctx);
+    }
+
+    function update(): void {
         if (!Sprite.ready() || !Sfx.ready()) {
             return;
         }
@@ -126,7 +140,6 @@ namespace Game {
             scene = factory(++level);
         }
         scene.update();
-        scene.render(ctx);
         gamepad();
     }
 
@@ -172,7 +185,8 @@ namespace Game {
             resize();
             start();
             bind();
-            update();
+            render();
+            setInterval(update, 16);
         });
     });
 }

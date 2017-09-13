@@ -15,8 +15,9 @@ namespace Game {
             this.title = new Txt(128 - (title.length * 3), 56, title, 0);
             this.items = [
                 new Txt(86, 80, 'Start New Game'),
-                new Txt(80, 96, 'Reset High Score'),
-                new Txt(92, 112),
+                new Txt(83, 96),
+                new Txt(80, 112, 'Reset High Score'),
+                new Txt(92, 128),
             ];
             this.hint = new Txt(8, 184, 'Move with Arrow keys and fire with Shift', 2);
             this.onstart = onstart;
@@ -35,9 +36,12 @@ namespace Game {
                         this.onstart();
                         break;
                     case 1:
-                        Session.get().clear();
+                        fullscreen();
                         break;
                     case 2:
+                        Session.get().clear();
+                        break;
+                    case 3:
                         let gain = Sfx.master.gain;
                         gain.value = gain.value ? 0 : 1;
                         break;
@@ -69,7 +73,8 @@ namespace Game {
         }
 
         update(): void {
-            this.items[2].text = 'Sound FX ' + (Sfx.master.gain.value ? ' On' : 'Off');
+            this.items[1].text = 'Full Screen ' + (document.webkitFullscreenElement ? ' On' : 'Off');
+            this.items[3].text = 'Sound FX ' + (Sfx.master.gain.value ? ' On' : 'Off');
             this.items.forEach((item, i) => {
                 item.invert = i == this.active && this.tick % 50 > 25;
             });
